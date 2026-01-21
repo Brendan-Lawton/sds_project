@@ -21,6 +21,14 @@ rules:
   - action: action_set_canteen
   - action: action_check_menu
 
+- rule: Handle category selection when awaiting
+  condition:
+  - slot_was_set:
+    - awaiting_category: true
+  steps:
+  - intent: inform_category
+  - action: action_show_category
+
 - rule: Set date when user provides it
   steps:
   - intent: inform_date

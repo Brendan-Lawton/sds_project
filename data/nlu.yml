@@ -128,6 +128,42 @@ nlu:
     - on [monday](date)
     - on [2026-01-22](date)
 
+- intent: inform_category
+  examples: |
+    - [Vorspeisen](category)
+    - [Salate](category)
+    - [Suppen](category)
+    - [Aktionen](category)
+    - [Essen](category)
+    - [Beilagen](category)
+    - [Desserts](category)
+    - show me [Vorspeisen](category)
+    - show me [Salate](category)
+    - show me [Suppen](category)
+    - show me [Aktionen](category)
+    - show me [Essen](category)
+    - show me [Beilagen](category)
+    - show me [Desserts](category)
+    - I want to see [Vorspeisen](category)
+    - I want to see [Salate](category)
+    - I want to see [Desserts](category)
+    - [Vorspeisen](category) please
+    - [Salate](category) please
+    - [Suppen](category) please
+    - [Desserts](category) please
+    - the [Vorspeisen](category)
+    - the [Salate](category)
+    - the [Essen](category)
+    - let's see [Beilagen](category)
+    - what's in [Desserts](category)?
+    - starters
+    - salads
+    - soups
+    - main dishes
+    - sides
+    - desserts
+    - appetizers
+
 - synonym: hardenbergstrasse
   examples: |
     - hardenberg
