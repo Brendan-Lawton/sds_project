@@ -1,0 +1,268 @@
+<div class="container-fluid">
+	<div class="row row-top-percent-1">
+		<div class="col-xs-12">
+			<i class="glyphicon glyphicon-calendar"></i>
+			<span class="bold">Mittwoch, 21.01.2026</span>
+		</div>
+	</div>
+	<div class="row row-top-percent-2">
+		<a href="/assets/speiseplaene/202/aktuelle_woche_de.pdf?t=1769003267" download="aktuelle_woche_de">
+			<button type="button" class="btn btn-speiseplan col-xs-12 col-md-5">
+				<i class="glyphicon glyphicon-download"></i> Wochenplan herunterladen
+			</button>
+		</a>
+		<button type="button" id="wowe" class="btn btn-speiseplan col-xs-12 col-md-3 ptr toggleThisNextWeek" onclick="loadSpeiseplanWochentag('2026-01-28', 'next', '3')">
+			<i class="glyphicon glyphicon-step-forward actioncolor"></i>
+			N&auml;chste Woche
+			<div id="hiddenDayNumber" class="hide">3</div>
+		</button>
+		<button type="button" class="btn btn-speiseplan col-xs-12 col-md-4 ptr toggleAllergenFilterPanel" onclick="toggleAllergenFilter()">
+			<i class="glyphicon glyphicon-filter actioncolor"></i>
+			Zusatzstoffe / Allergene
+		</button>
+	</div>
+</div>
+
+<div id="splFilterPanel" class="hide well row-top-percent-2">
+	<div class="container-fluid" style="font-size:10px">
+
+		<div class="row row-top-percent-1">
+			<div class="col-xs-12 col-md-10" onclick="clearSplFilter()">
+				Solche Essen ausschlie&szlig;en, welche markierte Zusatzstoffe / Allergene beinhalten.
+			</div>
+			<div class="col-xs-12 col-md-2 ptr clearFilter" onclick="clearSplFilter()">
+				<i class="glyphicon glyphicon-remove-circle"></i>
+				Filter leeren
+			</div>
+		</div>
+
+	</div><div class="container-fluid" style="font-size:11px">
+	<div class="row row-top-percent-1">
+		<div class="col-md-4">
+			<label>
+				<input type="checkbox" id="stoff-2" class="itemkennz" onclick="filterArtikel()"> <span style='cursor:pointer' title='(2) Schweinefleisch bzw. mit Gelatine vom Schwein'>(2) Schweinefleisch bzw. mit ...</span>
+			</label>
+		</div><div class="col-md-4">
+		<label>
+			<input type="checkbox" id="stoff-3" class="itemkennz" onclick="filterArtikel()"> (3) Alkohol
+		</label>
+	</div><div class="col-md-4">
+		<label>
+			<input type="checkbox" id="stoff-4" class="itemkennz" onclick="filterArtikel()"> (4) Geschmacksverstärker
+		</label>
+	</div>
+	</div><div class="row row-top-percent-1">
+	<div class="col-md-4">
+		<label>
+			<input type="checkbox" id="stoff-5" class="itemkennz" onclick="filterArtikel()"> (5) gewachst
+		</label>
+	</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-6" class="itemkennz" onclick="filterArtikel()"> (6) konserviert
+	</label>
+</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-7" class="itemkennz" onclick="filterArtikel()"> (7) Antioxidationsmittel
+	</label>
+</div>
+</div><div class="row row-top-percent-1">
+	<div class="col-md-4">
+		<label>
+			<input type="checkbox" id="stoff-8" class="itemkennz" onclick="filterArtikel()"> (8) Farbstoff
+		</label>
+	</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-9" class="itemkennz" onclick="filterArtikel()"> (9) Phosphat
+	</label>
+</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-10" class="itemkennz" onclick="filterArtikel()"> (10) geschwärzt
+	</label>
+</div>
+</div><div class="row row-top-percent-1">
+	<div class="col-md-4">
+		<label>
+			<input type="checkbox" id="stoff-12" class="itemkennz" onclick="filterArtikel()"> <span style='cursor:pointer' title='(12) enthält eine Phenylalaninquelle'>(12) enthält eine ...</span>
+		</label>
+	</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-13" class="itemkennz" onclick="filterArtikel()"> (13) Süßungsmittel
+	</label>
+</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-14" class="itemkennz" onclick="filterArtikel()"> <span style='cursor:pointer' title='(14) mit zum Teil fein zerkleinertem Fleischanteil'>(14) mit zum Teil fein ...</span>
+	</label>
+</div>
+</div><div class="row row-top-percent-1">
+	<div class="col-md-4">
+		<label>
+			<input type="checkbox" id="stoff-16" class="itemkennz" onclick="filterArtikel()"> (16) koffeinhaltig
+		</label>
+	</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-17" class="itemkennz" onclick="filterArtikel()"> (17) chininhaltig
+	</label>
+</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-19" class="itemkennz" onclick="filterArtikel()"> (19) geschwefelt
+	</label>
+</div>
+</div><div class="row row-top-percent-1">
+	<div class="col-md-4">
+		<label>
+			<input type="checkbox" id="stoff-20" class="itemkennz" onclick="filterArtikel()"> (20) kann abführend wirken
+		</label>
+	</div>
+</div>
+</div><div class="container-fluid" style="font-size:11px">
+	<div class="row row-top-percent-1">
+		<div class="col-md-4">
+			<label>
+				<input type="checkbox" id="stoff-21" class="itemkennz" onclick="filterArtikel()"> (21) Glutenhaltiges Getreide
+			</label>
+		</div><div class="col-md-4">
+		<label>
+			<input type="checkbox" id="stoff-21a" class="itemkennz" onclick="filterArtikel()"> (21a) Weizen
+		</label>
+	</div><div class="col-md-4">
+		<label>
+			<input type="checkbox" id="stoff-21b" class="itemkennz" onclick="filterArtikel()"> (21b) Roggen
+		</label>
+	</div>
+	</div><div class="row row-top-percent-1">
+	<div class="col-md-4">
+		<label>
+			<input type="checkbox" id="stoff-21c" class="itemkennz" onclick="filterArtikel()"> (21c) Gerste
+		</label>
+	</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-21d" class="itemkennz" onclick="filterArtikel()"> (21d) Hafer
+	</label>
+</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-21e" class="itemkennz" onclick="filterArtikel()"> (21e) Dinkel
+	</label>
+</div>
+</div><div class="row row-top-percent-1">
+	<div class="col-md-4">
+		<label>
+			<input type="checkbox" id="stoff-21f" class="itemkennz" onclick="filterArtikel()"> (21f) Kamut
+		</label>
+	</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-22" class="itemkennz" onclick="filterArtikel()"> (22) Krebstiere
+	</label>
+</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-23" class="itemkennz" onclick="filterArtikel()"> (23) Eier
+	</label>
+</div>
+</div><div class="row row-top-percent-1">
+	<div class="col-md-4">
+		<label>
+			<input type="checkbox" id="stoff-24" class="itemkennz" onclick="filterArtikel()"> (24) Fisch
+		</label>
+	</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-25" class="itemkennz" onclick="filterArtikel()"> (25) Erdnüsse
+	</label>
+</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-26" class="itemkennz" onclick="filterArtikel()"> (26) Schalenfrüchte
+	</label>
+</div>
+</div><div class="row row-top-percent-1">
+	<div class="col-md-4">
+		<label>
+			<input type="checkbox" id="stoff-26a" class="itemkennz" onclick="filterArtikel()"> (26a) Mandeln
+		</label>
+	</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-26b" class="itemkennz" onclick="filterArtikel()"> (26b) Haselnuss
+	</label>
+</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-26c" class="itemkennz" onclick="filterArtikel()"> (26c) Walnuss
+	</label>
+</div>
+</div><div class="row row-top-percent-1">
+	<div class="col-md-4">
+		<label>
+			<input type="checkbox" id="stoff-26d" class="itemkennz" onclick="filterArtikel()"> (26d) Kaschunuss
+		</label>
+	</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-26e" class="itemkennz" onclick="filterArtikel()"> (26e) Pacannuss
+	</label>
+</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-26f" class="itemkennz" onclick="filterArtikel()"> (26f) Paranuss
+	</label>
+</div>
+</div><div class="row row-top-percent-1">
+	<div class="col-md-4">
+		<label>
+			<input type="checkbox" id="stoff-26g" class="itemkennz" onclick="filterArtikel()"> (26g) Pistazie
+		</label>
+	</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-26h" class="itemkennz" onclick="filterArtikel()"> (26h) Macadamia
+	</label>
+</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-27" class="itemkennz" onclick="filterArtikel()"> (27) Sellerie
+	</label>
+</div>
+</div><div class="row row-top-percent-1">
+	<div class="col-md-4">
+		<label>
+			<input type="checkbox" id="stoff-28" class="itemkennz" onclick="filterArtikel()"> (28) Soja
+		</label>
+	</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-29" class="itemkennz" onclick="filterArtikel()"> (29) Senf
+	</label>
+</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-30" class="itemkennz" onclick="filterArtikel()"> <span style='cursor:pointer' title='(30) Milch und Milchprodukte (inkl. Laktose)'>(30) Milch und Milchprodukte ...</span>
+	</label>
+</div>
+</div><div class="row row-top-percent-1">
+	<div class="col-md-4">
+		<label>
+			<input type="checkbox" id="stoff-31" class="itemkennz" onclick="filterArtikel()"> (31) Sesam
+		</label>
+	</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-32" class="itemkennz" onclick="filterArtikel()"> (32) Schwefeldioxid und Sulfide
+	</label>
+</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-33" class="itemkennz" onclick="filterArtikel()"> (33) Lupine
+	</label>
+</div>
+</div><div class="row row-top-percent-1">
+	<div class="col-md-4">
+		<label>
+			<input type="checkbox" id="stoff-34" class="itemkennz" onclick="filterArtikel()"> (34) Weichtiere
+		</label>
+	</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-35" class="itemkennz" onclick="filterArtikel()"> (35) Nitritpökelsalz
+	</label>
+</div><div class="col-md-4">
+	<label>
+		<input type="checkbox" id="stoff-36" class="itemkennz" onclick="filterArtikel()"> (36) Hefe
+	</label>
+</div>
+</div><div class="row row-top-percent-1">
+	<div class="col-md-4">
+		<label>
+			<input type="checkbox" id="stoff-37" class="itemkennz" onclick="filterArtikel()"> (37) Blaumohn
+		</label>
+	</div>
+</div>
+</div>
+</div><div class="container-fluid splGroupWrapper">
+	<br><br>Kein Speisenangebot
+</div>
