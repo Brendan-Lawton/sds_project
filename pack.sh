@@ -1,0 +1,10 @@
+tar czf rasa.tar.gz --exclude='./*.tar.gz' \
+--exclude='./.git' \
+--exclude='./__pycache__' \
+--exclude='./.venv' \
+--exclude='./.idea' \
+--exclude='./.rasa' \
+--exclude='./.claude' \
+--exclude='./web' \
+--exclude='asr_server.py' \
+--exclude='./models' .
