@@ -2,29 +2,64 @@ version: "3.1"
 
 stories:
 
-- story: happy path
+- story: greet and ask menu without canteen
   steps:
   - intent: greet
   - action: utter_greet
-  - intent: mood_great
-  - action: utter_happy
+  - intent: ask_canteen_menu
+  - action: action_check_menu
+  - slot_was_set:
+    - awaiting_canteen: true
+  - intent: inform_canteen
+  - action: action_set_canteen
+  - action: action_check_menu
 
-- story: sad path 1
+- story: ask menu with canteen specified
   steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - intent: affirm
-  - action: utter_happy
+  - intent: ask_canteen_menu
+    entities:
+    - canteen: "Hardenbergstrasse"
+  - action: action_check_menu
 
-- story: sad path 2
+- story: ask menu with canteen and date
+  steps:
+  - intent: ask_canteen_menu
+    entities:
+    - canteen: "Marchstrasse"
+    - date: "tomorrow"
+  - action: action_check_menu
+
+- story: user provides canteen when asked
+  steps:
+  - intent: ask_canteen_menu
+  - action: action_check_menu
+  - slot_was_set:
+    - awaiting_canteen: true
+  - intent: inform_canteen
+    entities:
+    - canteen: "vegan"
+  - action: action_set_canteen
+  - action: action_check_menu
+
+- story: user changes date for menu
+  steps:
+  - intent: inform_date
+    entities:
+    - date: "tomorrow"
+  - action: action_set_menu_date
+  - intent: ask_canteen_menu
+  - action: action_check_menu
+
+- story: direct menu request with vegan
+  steps:
+  - intent: ask_canteen_menu
+    entities:
+    - canteen: "vegan"
+  - action: action_check_menu
+
+- story: greet then goodbye
   steps:
   - intent: greet
   - action: utter_greet
-  - intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - intent: deny
+  - intent: goodbye
   - action: utter_goodbye

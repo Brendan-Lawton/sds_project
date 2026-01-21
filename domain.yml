@@ -5,29 +5,54 @@ intents:
   - goodbye
   - affirm
   - deny
-  - mood_great
-  - mood_unhappy
-  - bot_challenge
+  - ask_canteen_menu
+  - inform_canteen
+  - inform_date
+
+entities:
+  - canteen
+  - date
+
+slots:
+  canteen:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: canteen
+
+  menu_date:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: date
+
+  awaiting_canteen:
+    type: bool
+    initial_value: false
+    influence_conversation: true
+    mappings:
+      - type: custom
 
 responses:
   utter_greet:
-  - text: "Hey! How are you?"
-
-  utter_cheer_up:
-  - text: "Here is something to cheer you up:"
-    image: "https://i.imgur.com/nGF1K8f.jpg"
-
-  utter_did_that_help:
-  - text: "Did that help you?"
-
-  utter_happy:
-  - text: "Great, carry on!"
+    - text: "Hey! How can I help you today?"
 
   utter_goodbye:
-  - text: "Bye"
+    - text: "Bye! Have a nice meal!"
 
-  utter_iamabot:
-  - text: "I am a bot, powered by Rasa."
+  utter_did_that_help:
+    - text: "Did that help you?"
+
+  utter_ask_canteen:
+    - text: "Which canteen would you like to check? Available options: Hardenbergstrasse, Marchstrasse, or Vegan."
+
+actions:
+  - action_check_menu
+  - action_set_canteen
+  - action_set_menu_date
+  - action_reset_menu_slots
 
 session_config:
   session_expiration_time: 60

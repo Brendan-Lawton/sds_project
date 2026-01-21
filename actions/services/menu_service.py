@@ -103,7 +103,7 @@ class MenuService:
         Get the menu for a given canteen and date.
 
         Args:
-            canteen_id: The resource ID of the canteen (e.g., "321")
+            canteen_id: The resource ID of the canteen (e.g., "1004")
             date: The date in YYYY-MM-DD format (e.g., "2026-01-22")
 
         Returns:
@@ -118,11 +118,12 @@ class MenuService:
         return self._parse_menu_html(html_content, canteen_id, date)
 
     def _fetch_menu_html(self, canteen_id: str, date: str) -> str:
-        """Fetch the raw HTML content from the menu API."""
+        """Fetch the raw HTML content from the menu API using multipart/form-data."""
         try:
-            response = requests.get(
+            response = requests.post(
                 self._BASE_URL,
-                params={"resources_id": canteen_id, "date": date},
+                data={"resources_id": canteen_id, "date": date},
+                headers={"User-Agent": "MenuService/1.0"},
                 timeout=10,
             )
             response.raise_for_status()
