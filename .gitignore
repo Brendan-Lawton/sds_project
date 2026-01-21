@@ -1,0 +1,6 @@
+.idea/
+.rasa/
+.venv/
+**/__pycache__/
+models/*.tar.gz
+
