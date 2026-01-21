@@ -7,7 +7,21 @@ rules:
   - intent: goodbye
   - action: utter_goodbye
 
-- rule: Say 'I am a bot' anytime the user challenges
+- rule: Respond to menu request
   steps:
-  - intent: bot_challenge
-  - action: utter_iamabot
+  - intent: ask_canteen_menu
+  - action: action_check_menu
+
+- rule: Handle canteen selection when awaiting
+  condition:
+  - slot_was_set:
+    - awaiting_canteen: true
+  steps:
+  - intent: inform_canteen
+  - action: action_set_canteen
+  - action: action_check_menu
+
+- rule: Set date when user provides it
+  steps:
+  - intent: inform_date
+  - action: action_set_menu_date
