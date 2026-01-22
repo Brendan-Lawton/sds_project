@@ -11,7 +11,7 @@
 
 2. Source `.venv` folder
     ```bash
-    source .venv/activate/bin
+    source .venv/bin/activate
     ```
 
 3. Install requirements
