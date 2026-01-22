@@ -8,4 +8,7 @@ asr_server.py
 **/__pycache__/
 models/*.tar.gz
 rasa.tar.gz
+data/._nlu.yml
+data/._rules.yml
+data/._stories.yml
 
