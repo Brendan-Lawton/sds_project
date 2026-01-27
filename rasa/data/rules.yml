@@ -1,0 +1,35 @@
+version: "3.1"
+
+rules:
+
+- rule: Say goodbye anytime the user says goodbye
+  steps:
+  - intent: goodbye
+  - action: utter_goodbye
+
+- rule: Respond to menu request
+  steps:
+  - intent: ask_canteen_menu
+  - action: action_check_menu
+
+- rule: Handle canteen selection when awaiting
+  condition:
+  - slot_was_set:
+    - awaiting_canteen: true
+  steps:
+  - intent: inform_canteen
+  - action: action_set_canteen
+  - action: action_check_menu
+
+- rule: Handle category selection when awaiting
+  condition:
+  - slot_was_set:
+    - awaiting_category: true
+  steps:
+  - intent: inform_category
+  - action: action_show_category
+
+- rule: Set date when user provides it
+  steps:
+  - intent: inform_date
+  - action: action_set_menu_date

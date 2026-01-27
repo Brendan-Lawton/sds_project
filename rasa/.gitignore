@@ -1,0 +1,10 @@
+.claude/
+.idea/
+.rasa/
+.venv/
+**/.DS_Store
+web/
+asr_server.py
+**/__pycache__/
+models/*.tar.gz
+
