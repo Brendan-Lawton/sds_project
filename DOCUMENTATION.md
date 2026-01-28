@@ -157,7 +157,7 @@ canteens (Hardenbergstrasse, Marchstrasse, Vegan Mensa) and allows users to brow
 │                                    DISPLAY CATEGORIES                                                   │
 │                                                                                                         │
 │ Bot: "Menu for [Canteen] on [Date] has the following categories:                                        │
-│       Vorspeisen, Salate, Suppen, Aktionen, Essen, Beilagen, Desserts                                   │
+│       Appetizers / Starters, Salads, Soups, Promotions, Main dishes, Side dishes, Desserts              │
 │                                                                                                         │
 │       Which category would you like to see?"                                                            │
 │                                                                                                         │
@@ -172,9 +172,10 @@ canteens (Hardenbergstrasse, Marchstrasse, Vegan Mensa) and allows users to brow
                               │                                     │
                               │ User can say:                       │
                               │ • "Desserts"                        │
-                              │ • "Show me Vorspeisen"              │
+                              │ • "Show me Starters"                │
+                              | • "Show me Appetizers"              │
                               │ • "The salads please"               │
-                              │ • "Essen" / "Main dishes"           │
+                              │ • "Main dishes"                     │
                               └─────────────────────────────────────┘
                                                         │
                                                         ▼
@@ -292,26 +293,25 @@ Bot:  Which canteen would you like to check? Available options:
 User: Hardenbergstrasse
 Bot:  Got it, checking Hardenbergstrasse.
 Bot:  Menu for Hardenbergstrasse on 2026-01-21 has the following categories:
-      Vorspeisen, Salate, Suppen, Aktionen, Essen, Beilagen, Desserts
+      Appetizers / Starters, Salads, Soups, Promotions, Main dishes, Side dishes, Desserts
 
       Which category would you like to see?
 
 User: Desserts
 Bot:  **Desserts**
 
-      • Marinierter Obstsalat - € 1,50/1,65/1,80
-      • Bananen-Kokos-Joghurt - € 0,75/1,50/1,75
+      • Marinated fruit salad - € 1,50/1,65/1,80
+      • Banana Coconut Yoghurt - € 0,75/1,50/1,75
         Allergens: Milk and dairy products (incl. lactose)
-      • Kokospudding - € 0,75/1,50/1,75
+      • Coconut Pudding - € 0,75/1,50/1,75
         Allergens: Soy
 
-Bot:  Would you like to see another category? Available: Vorspeisen,
-      Salate, Suppen, Aktionen, Essen, Beilagen, Desserts
+Bot:  Would you like to see another category? Available: Appetizers / Starters, Salads, Soups, Promotions, Main dishes, Side dishes, Desserts
 
-User: Show me Essen
-Bot:  **Essen**
+User: Show me Main dishes
+Bot:  **Main dishes**
 
-      • 3 Gemüsebällchen in Kichererbsen-Kokos-Sauce - € 1,95/3,90/4,50
+      • 3 Vegetable Balls in Chickpea Coconut Sauce - € 1,95/3,90/4,50
         Allergens: Wheat
       ...
 
@@ -324,14 +324,14 @@ Bot:  Bye! Have a nice meal!
 ```
 User: Menu at vegan canteen
 Bot:  Menu for Vegan Mensa on 2026-01-21 has the following categories:
-      Vorspeisen, Salate, Suppen, Essen, Beilagen, Desserts
+      Appetizers / Starters, Salads, Soups, Promotions, Main dishes, Side dishes, Desserts
 
       Which category would you like to see?
 
-User: Suppen
-Bot:  **Suppen**
+User: Soups
+Bot:  **Soups**
 
-      • Berliner Kartoffelsuppe mit Möhren - € 0,75/1,50/1,75
+      • Berlin-Style Potato Soup with Carrots - € 0,75/1,50/1,75
         Allergens: Celery, Mustard
 ```
 
@@ -357,7 +357,7 @@ Bot:  Menu for Marchstrasse on 2026-01-21 has the following categories:
 ```
 User: Menu at Hardenbergstrasse
 Bot:  Menu for Hardenbergstrasse on 2026-01-21 has the following categories:
-      Vorspeisen, Salate, Suppen, Aktionen, Essen, Beilagen, Desserts
+      Appetizers / Starters, Salads, Soups, Promotions, Main dishes, Side dishes, Desserts
 
       Which category would you like to see?
 
