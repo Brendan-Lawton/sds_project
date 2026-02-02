@@ -179,6 +179,42 @@ nlu:
     - desserts
     - appetizers
 
+- intent: ask_dietary_menu
+  examples: |
+    - show me vegan options
+    - what vegan food is available?
+    - vegan dishes please
+    - show vegetarian options
+    - what vegetarian meals are there?
+    - vegetarian food please
+    - nut-free options
+    - show me nut-free food
+    - what can I eat that's nut free?
+    - I need vegan food
+    - are there any vegan options?
+    - do you have vegetarian dishes?
+    - is there anything nut-free?
+    - I'm vegan, what can I eat?
+    - I'm vegetarian
+    - I have a nut allergy
+    - show [vegan](dietary_restriction) options
+    - [vegetarian](dietary_restriction) dishes
+    - [nut-free](dietary_restriction) food
+    - filter by [vegan](dietary_restriction)
+    - only show [vegetarian](dietary_restriction)
+    - I want [vegan](dietary_restriction) meals
+
+- intent: inform_dietary_restriction
+  examples: |
+    - [vegan](dietary_restriction)
+    - [vegetarian](dietary_restriction)
+    - [nut-free](dietary_restriction)
+    - I'm [vegan](dietary_restriction)
+    - I'm [vegetarian](dietary_restriction)
+    - I need [nut-free](dietary_restriction)
+    - [vegan](dietary_restriction) please
+    - [vegetarian](dietary_restriction) please
+
 - synonym: hardenbergstrasse
   examples: |
     - hardenberg

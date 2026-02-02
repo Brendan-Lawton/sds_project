@@ -9,11 +9,14 @@ intents:
   - inform_canteen
   - inform_date
   - inform_category
+  - ask_dietary_menu
+  - inform_dietary_restriction
 
 entities:
   - canteen
   - date
   - category
+  - dietary_restriction
 
 slots:
   canteen:
@@ -63,6 +66,13 @@ slots:
     mappings:
       - type: custom
 
+  dietary_restriction:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: dietary_restriction
+
 responses:
   utter_greet:
     - text: "Hey! How can I help you today?"
@@ -85,6 +95,7 @@ actions:
   - action_set_canteen
   - action_set_menu_date
   - action_reset_menu_slots
+  - action_filter_dietary
 
 session_config:
   session_expiration_time: 60

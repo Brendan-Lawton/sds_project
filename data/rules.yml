@@ -33,3 +33,13 @@ rules:
   steps:
   - intent: inform_date
   - action: action_set_menu_date
+- rule: Handle dietary menu request
+  steps:
+  - intent: ask_dietary_menu
+  - action: action_filter_dietary
+
+- rule: Handle dietary restriction info
+  steps:
+  - intent: inform_dietary_restriction
+  - action: action_filter_dietary
+

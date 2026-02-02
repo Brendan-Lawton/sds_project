@@ -60,6 +60,40 @@ def resolve_canteen(canteen_input: Optional[str]) -> Optional[str]:
     return None
 
 
+# Dietary classification codes
+# Meat additives: 2 = Pork, 14 = Contains partially finely minced meat
+# Seafood allergens: 22 = Crustaceans, 24 = Fish, 34 = Mollusks
+MEAT_ADDITIVE_CODES = {"2", "14"}
+SEAFOOD_ALLERGEN_CODES = {"22", "24", "34"}
+EGG_ALLERGEN_CODE = "23"
+DAIRY_ALLERGEN_CODE = "30"
+NUT_ALLERGEN_CODES = {"25", "26", "26a", "26b", "26c", "26d", "26e", "26f", "26g", "26h"}
+
+
+def is_vegetarian(item) -> bool:
+    """Check if item is vegetarian (no meat/seafood)."""
+    all_codes = set(item.allergen_codes + item.additive_codes)
+    has_meat = bool(all_codes & MEAT_ADDITIVE_CODES)
+    has_seafood = bool(all_codes & SEAFOOD_ALLERGEN_CODES)
+    return not has_meat and not has_seafood
+
+
+def is_vegan(item) -> bool:
+    """Check if item is vegan (vegetarian + no eggs/dairy)."""
+    if not is_vegetarian(item):
+        return False
+    all_codes = set(item.allergen_codes + item.additive_codes)
+    has_eggs = EGG_ALLERGEN_CODE in all_codes
+    has_dairy = DAIRY_ALLERGEN_CODE in all_codes
+    return not has_eggs and not has_dairy
+
+
+def is_nut_free(item) -> bool:
+    """Check if item is nut-free (no peanuts or tree nuts)."""
+    all_codes = set(item.allergen_codes + item.additive_codes)
+    return not bool(all_codes & NUT_ALLERGEN_CODES)
+
+
 def format_category_items(category_name: str, menu: MenuDTO) -> str:
     """Format items from a specific category."""
     category = next((c for c in menu.categories if c.name.lower() == category_name.lower()), None)
@@ -92,6 +126,8 @@ def serialize_menu(menu: MenuDTO) -> str:
                         "price": item.price,
                         "allergens": item.allergens,
                         "additives": item.additives,
+                        "allergen_codes": item.allergen_codes,
+                        "additive_codes": item.additive_codes,
                     }
                     for item in cat.items
                 ]
@@ -117,6 +153,8 @@ def deserialize_menu(menu_json: str) -> Optional[MenuDTO]:
                         price=item["price"],
                         allergens=item["allergens"],
                         additives=item["additives"],
+                        allergen_codes=item.get("allergen_codes", []),
+                        additive_codes=item.get("additive_codes", []),
                     )
                     for item in cat["items"]
                 ]
@@ -323,4 +361,89 @@ class ActionResetMenuSlots(Action):
             SlotSet("awaiting_category", False),
             SlotSet("available_categories", None),
             SlotSet("cached_menu", None),
+            SlotSet("dietary_restriction", None),
         ]
+
+
+class ActionFilterDietary(Action):
+    def name(self) -> Text:
+        return "action_filter_dietary"
+
+    def run(
+        self,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> List[Dict[Text, Any]]:
+        dietary_restriction = tracker.get_slot("dietary_restriction")
+        cached_menu_json = tracker.get_slot("cached_menu")
+
+        if not dietary_restriction:
+            # Try to extract from message
+            message = tracker.latest_message.get("text", "").lower()
+            if "vegan" in message:
+                dietary_restriction = "vegan"
+            elif "vegetarian" in message:
+                dietary_restriction = "vegetarian"
+            elif "nut-free" in message or "nut free" in message or "no nuts" in message:
+                dietary_restriction = "nut-free"
+
+        if not dietary_restriction:
+            dispatcher.utter_message(
+                text="What dietary restriction would you like to filter by? "
+                "Options: vegan, vegetarian, or nut-free."
+            )
+            return []
+
+        if not cached_menu_json:
+            dispatcher.utter_message(
+                text="Please select a canteen first so I can filter the menu."
+            )
+            return [SlotSet("dietary_restriction", dietary_restriction)]
+
+        menu = deserialize_menu(cached_menu_json)
+        if not menu:
+            dispatcher.utter_message(
+                text="Sorry, I lost the menu data. Please ask for the menu again."
+            )
+            return [SlotSet("dietary_restriction", dietary_restriction)]
+
+        # Select filter function based on restriction
+        filter_funcs = {
+            "vegan": is_vegan,
+            "vegetarian": is_vegetarian,
+            "nut-free": is_nut_free,
+        }
+        filter_func = filter_funcs.get(dietary_restriction.lower())
+        if not filter_func:
+            dispatcher.utter_message(
+                text=f"I don't recognize '{dietary_restriction}'. "
+                "Please choose from: vegan, vegetarian, or nut-free."
+            )
+            return []
+
+        # Filter items across all categories
+        canteen_name = CANTEEN_NAMES.get(menu.canteen_id, menu.canteen_id)
+        lines = [f"**{dietary_restriction.capitalize()} options at {canteen_name}:**\n"]
+        found_items = False
+
+        for category in menu.categories:
+            matching_items = [item for item in category.items if filter_func(item)]
+            if matching_items:
+                found_items = True
+                lines.append(f"\n**{category.name}**")
+                for item in matching_items:
+                    price_str = f" - {item.price}" if item.price else ""
+                    lines.append(f"• {item.name}{price_str}")
+
+        if not found_items:
+            dispatcher.utter_message(
+                text=f"Sorry, I couldn't find any {dietary_restriction} options in the current menu."
+            )
+        else:
+            dispatcher.utter_message(text="\n".join(lines))
+
+        return [SlotSet("dietary_restriction", dietary_restriction)]
+
+
+    def name(self) -> Text:
