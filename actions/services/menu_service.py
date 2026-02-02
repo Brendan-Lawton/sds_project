@@ -26,6 +26,8 @@ class MenuItem:
     price: Optional[str]
     allergens: list[str] = field(default_factory=list)
     additives: list[str] = field(default_factory=list)
+    allergen_codes: list[str] = field(default_factory=list)
+    additive_codes: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -188,13 +190,15 @@ class MenuService:
         name = name_elem.get_text(strip=True)
 
         price = self._extract_price(meal_row)
-        allergens, additives = self._extract_allergens_and_additives(meal_row)
+        allergens, additives, allergen_codes, additive_codes = self._extract_allergens_and_additives(meal_row)
 
         return MenuItem(
             name=name,
             price=price,
             allergens=allergens,
             additives=additives,
+            allergen_codes=allergen_codes,
+            additive_codes=additive_codes,
         )
 
     def _extract_price(self, meal_row) -> Optional[str]:
@@ -208,22 +212,30 @@ class MenuService:
             return html.unescape(price_text).replace("\u20ac", "€").strip()
         return None
 
-    def _extract_allergens_and_additives(self, meal_row) -> tuple[list[str], list[str]]:
-        """Extract and translate allergens and additives from the meal row."""
+    def _extract_allergens_and_additives(self, meal_row) -> tuple[list[str], list[str], list[str], list[str]]:
+        """Extract and translate allergens and additives from the meal row.
+
+        Returns:
+            Tuple of (allergen_names, additive_names, allergen_codes, additive_codes)
+        """
         allergens: list[str] = []
         additives: list[str] = []
+        allergen_codes: list[str] = []
+        additive_codes: list[str] = []
 
         kennz_data = meal_row.get("data-kennz", "")
         if not kennz_data:
-            return allergens, additives
+            return allergens, additives, allergen_codes, additive_codes
 
         codes = [code.strip() for code in kennz_data.split(",") if code.strip()]
 
         for code in codes:
             if code in _ALLERGENS:
                 allergens.append(_ALLERGENS[code])
+                allergen_codes.append(code)
             elif code in _ADDITIVES:
                 additives.append(_ADDITIVES[code])
+                additive_codes.append(code)
 
-        return allergens, additives
+        return allergens, additives, allergen_codes, additive_codes
 
