@@ -11,12 +11,15 @@ intents:
   - inform_category
   - ask_dietary_menu
   - inform_dietary_restriction
+  - ask_affordable_menu
+  - ask_budget_meal
 
 entities:
   - canteen
   - date
   - category
   - dietary_restriction
+  - budget
 
 slots:
   canteen:
@@ -73,6 +76,13 @@ slots:
       - type: from_entity
         entity: dietary_restriction
 
+  budget:
+    type: float
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: budget
+
 responses:
   utter_greet:
     - text: "Hey! How can I help you today?"
@@ -96,6 +106,8 @@ actions:
   - action_set_menu_date
   - action_reset_menu_slots
   - action_filter_dietary
+  - action_filter_by_price
+  - action_suggest_budget_meal
 
 session_config:
   session_expiration_time: 60

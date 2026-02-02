@@ -215,6 +215,39 @@ nlu:
     - [vegan](dietary_restriction) please
     - [vegetarian](dietary_restriction) please
 
+- intent: ask_affordable_menu
+  examples: |
+    - what can I get for 3 euros?
+    - what's under 5 euros?
+    - items under 4 euros
+    - show me food for less than 3 euros
+    - what can I afford for [3](budget) euros?
+    - what's available for under [5](budget) euros?
+    - meals under [4](budget) euros
+    - food for [2.50](budget) euros or less
+    - anything under [3.50](budget)?
+    - cheap options under [4](budget) euros
+    - what costs less than [5](budget) euros?
+    - show items below [3](budget) euros
+    - I have [4](budget) euros, what can I eat?
+    - what fits in a [5](budget) euro budget?
+
+- intent: ask_budget_meal
+  examples: |
+    - suggest a meal for 5 euros
+    - main and side for 4 euros
+    - what meal can I get for [5](budget) euros?
+    - suggest a combo for [4](budget) euros
+    - main dish and side for [6](budget) euros
+    - recommend a meal within [5](budget) euros
+    - best meal for [4.50](budget) euros
+    - what's a good combo for [5](budget) euros?
+    - I want a full meal for [6](budget) euros
+    - main plus side within [5](budget) euros
+    - meal suggestion for [4](budget) euros
+    - budget meal for [5](budget) euros
+    - suggest something for [3.50](budget) euros
+
 - synonym: hardenbergstrasse
   examples: |
     - hardenberg

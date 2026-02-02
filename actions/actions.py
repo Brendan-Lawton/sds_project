@@ -60,6 +60,20 @@ def resolve_canteen(canteen_input: Optional[str]) -> Optional[str]:
     return None
 
 
+def parse_student_price(price_str: Optional[str]) -> Optional[float]:
+    """Extract student price (first value) from price string like '€ 1,95/2,15/2,35'."""
+    if not price_str:
+        return None
+    try:
+        # Remove € symbol and whitespace, take first price (student price)
+        price_str = price_str.replace("€", "").strip()
+        first_price = price_str.split("/")[0].strip()
+        # Convert German format (comma) to float
+        return float(first_price.replace(",", "."))
+    except (ValueError, IndexError):
+        return None
+
+
 # Dietary classification codes
 # Meat additives: 2 = Pork, 14 = Contains partially finely minced meat
 # Seafood allergens: 22 = Crustaceans, 24 = Fish, 34 = Mollusks
@@ -362,10 +376,12 @@ class ActionResetMenuSlots(Action):
             SlotSet("available_categories", None),
             SlotSet("cached_menu", None),
             SlotSet("dietary_restriction", None),
+            SlotSet("budget", None),
         ]
 
 
 class ActionFilterDietary(Action):
+
     def name(self) -> Text:
         return "action_filter_dietary"
 
@@ -446,4 +462,202 @@ class ActionFilterDietary(Action):
         return [SlotSet("dietary_restriction", dietary_restriction)]
 
 
+class ActionFilterByPrice(Action):
+
     def name(self) -> Text:
+        return "action_filter_by_price"
+
+    def run(
+        self,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> List[Dict[Text, Any]]:
+        budget = tracker.get_slot("budget")
+        cached_menu_json = tracker.get_slot("cached_menu")
+
+        # Try to extract budget from message if not in slot
+        if budget is None:
+            message = tracker.latest_message.get("text", "")
+            import re
+            # Match patterns like "3 euros", "3.50", "3,50", "€3"
+            match = re.search(r'(\d+[.,]?\d*)\s*(?:euros?|€)?', message)
+            if match:
+                try:
+                    budget = float(match.group(1).replace(",", "."))
+                except ValueError:
+                    pass
+
+        if budget is None:
+            dispatcher.utter_message(
+                text="What's your budget? Please provide an amount in euros."
+            )
+            return []
+
+        if not cached_menu_json:
+            dispatcher.utter_message(
+                text="Please select a canteen first so I can filter by price."
+            )
+            return [SlotSet("budget", budget)]
+
+        menu = deserialize_menu(cached_menu_json)
+        if not menu:
+            dispatcher.utter_message(
+                text="Sorry, I lost the menu data. Please ask for the menu again."
+            )
+            return [SlotSet("budget", budget)]
+
+        canteen_name = CANTEEN_NAMES.get(menu.canteen_id, menu.canteen_id)
+        lines = [f"**Items under €{budget:.2f} at {canteen_name}:**\n"]
+        found_items = False
+
+        for category in menu.categories:
+            affordable_items = []
+            for item in category.items:
+                price = parse_student_price(item.price)
+                if price is not None and price <= budget:
+                    affordable_items.append((item, price))
+
+            if affordable_items:
+                found_items = True
+                lines.append(f"\n**{category.name}**")
+                # Sort by price ascending
+                affordable_items.sort(key=lambda x: x[1])
+                for item, price in affordable_items:
+                    lines.append(f"• {item.name} - €{price:.2f}")
+
+        if not found_items:
+            dispatcher.utter_message(
+                text=f"Sorry, I couldn't find any items under €{budget:.2f}."
+            )
+        else:
+            dispatcher.utter_message(text="\n".join(lines))
+
+        return [SlotSet("budget", budget)]
+
+
+class ActionSuggestBudgetMeal(Action):
+
+    def name(self) -> Text:
+        return "action_suggest_budget_meal"
+
+    def run(
+        self,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> List[Dict[Text, Any]]:
+        budget = tracker.get_slot("budget")
+        cached_menu_json = tracker.get_slot("cached_menu")
+
+        # Try to extract budget from message if not in slot
+        if budget is None:
+            message = tracker.latest_message.get("text", "")
+            import re
+            match = re.search(r'(\d+[.,]?\d*)\s*(?:euros?|€)?', message)
+            if match:
+                try:
+                    budget = float(match.group(1).replace(",", "."))
+                except ValueError:
+                    pass
+
+        if budget is None:
+            dispatcher.utter_message(
+                text="What's your budget for a meal? Please provide an amount in euros."
+            )
+            return []
+
+        if not cached_menu_json:
+            dispatcher.utter_message(
+                text="Please select a canteen first so I can suggest a meal."
+            )
+            return [SlotSet("budget", budget)]
+
+        menu = deserialize_menu(cached_menu_json)
+        if not menu:
+            dispatcher.utter_message(
+                text="Sorry, I lost the menu data. Please ask for the menu again."
+            )
+            return [SlotSet("budget", budget)]
+
+        # Get main dishes (Essen) and sides (Beilagen)
+        mains_category = next((c for c in menu.categories if c.name.lower() == "essen"), None)
+        sides_category = next((c for c in menu.categories if c.name.lower() == "beilagen"), None)
+
+        mains_with_price = []
+        if mains_category:
+            for item in mains_category.items:
+                price = parse_student_price(item.price)
+                if price is not None:
+                    mains_with_price.append((item, price))
+
+        sides_with_price = []
+        if sides_category:
+            for item in sides_category.items:
+                price = parse_student_price(item.price)
+                if price is not None:
+                    sides_with_price.append((item, price))
+
+        # Sort mains by price descending (maximize value)
+        mains_with_price.sort(key=lambda x: x[1], reverse=True)
+        # Sort sides by price ascending (cheapest first)
+        sides_with_price.sort(key=lambda x: x[1])
+
+        canteen_name = CANTEEN_NAMES.get(menu.canteen_id, menu.canteen_id)
+        best_combo = None
+        best_main_only = None
+
+        # Find best main + side combo within budget
+        for main, main_price in mains_with_price:
+            if main_price <= budget:
+                remaining = budget - main_price
+                # Find cheapest side that fits
+                for side, side_price in sides_with_price:
+                    if side_price <= remaining:
+                        best_combo = (main, main_price, side, side_price)
+                        break
+                if best_combo:
+                    break
+                # Track best main-only option
+                if best_main_only is None:
+                    best_main_only = (main, main_price)
+
+        if best_combo:
+            main, main_price, side, side_price = best_combo
+            total = main_price + side_price
+            dispatcher.utter_message(
+                text=f"**Best meal combo for €{budget:.2f} at {canteen_name}:**\n\n"
+                f"🍽️ Main: {main.name} - €{main_price:.2f}\n"
+                f"🥗 Side: {side.name} - €{side_price:.2f}\n"
+                f"💰 Total: €{total:.2f}"
+            )
+        elif best_main_only:
+            main, main_price = best_main_only
+            dispatcher.utter_message(
+                text=f"**Best option for €{budget:.2f} at {canteen_name}:**\n\n"
+                f"🍽️ {main.name} - €{main_price:.2f}\n\n"
+                f"(No sides fit within the remaining budget)"
+            )
+        else:
+            # Suggest cheapest option
+            all_items = []
+            for cat in menu.categories:
+                for item in cat.items:
+                    price = parse_student_price(item.price)
+                    if price is not None:
+                        all_items.append((item, price, cat.name))
+
+            if all_items:
+                all_items.sort(key=lambda x: x[1])
+                cheapest, cheapest_price, cat_name = all_items[0]
+                dispatcher.utter_message(
+                    text=f"Sorry, nothing fits your €{budget:.2f} budget.\n\n"
+                    f"The cheapest option is:\n"
+                    f"• {cheapest.name} ({cat_name}) - €{cheapest_price:.2f}"
+                )
+            else:
+                dispatcher.utter_message(
+                    text=f"Sorry, I couldn't find any priced items in the menu."
+                )
+
+        return [SlotSet("budget", budget)]
