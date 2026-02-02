@@ -16,12 +16,29 @@ from actions.services.menu_service import MenuService, MenuFetchError, MenuParse
 
 
 CANTEENS: Dict[str, str] = {
+    # Name-based
     "hardenbergstrasse": "1004",
     "hardenberg": "1004",
     "marchstrasse": "1010",
     "march": "1010",
     "vegan": "2456",
     "veggie": "2456",
+    # Index-based
+    "1": "1004",
+    "one": "1004",
+    "first": "1004",
+    "canteen 1": "1004",
+    "mensa 1": "1004",
+    "2": "1010",
+    "two": "1010",
+    "second": "1010",
+    "canteen 2": "1010",
+    "mensa 2": "1010",
+    "3": "2456",
+    "three": "2456",
+    "third": "2456",
+    "canteen 3": "2456",
+    "mensa 3": "2456",
 }
 
 CANTEEN_NAMES: Dict[str, str] = {
