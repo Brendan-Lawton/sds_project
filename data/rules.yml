@@ -2,9 +2,10 @@ version: "3.1"
 
 rules:
 
-- rule: Say goodbye anytime the user says goodbye
+- rule: Say goodbye and reset
   steps:
   - intent: goodbye
+  - action: action_reset_menu_slots
   - action: utter_goodbye
 
 - rule: Respond to menu request
@@ -54,3 +55,7 @@ rules:
   - intent: ask_budget_meal
   - action: action_suggest_budget_meal
 
+- rule: Handle fallback
+  steps:
+  - intent: nlu_fallback
+  - action: utter_help

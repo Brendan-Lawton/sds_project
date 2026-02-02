@@ -85,7 +85,15 @@ slots:
 
 responses:
   utter_greet:
-    - text: "Hey! How can I help you today?"
+    - text: |
+        Hello! I'm your TU Berlin canteen assistant. I can help you with:
+
+        - Show menus for Hardenbergstrasse, Marchstrasse, or Vegan Mensa
+        - Filter by dietary needs (vegan, vegetarian, nut-free)
+        - Find meals within your budget
+        - Suggest main dish + side combinations
+
+        Which canteen would you like to check? (You can also say "canteen 1", "canteen 2", or "canteen 3")
 
   utter_goodbye:
     - text: "Bye! Have a nice meal!"
@@ -94,10 +102,26 @@ responses:
     - text: "Did that help you?"
 
   utter_ask_canteen:
-    - text: "Which canteen would you like to check? Available options: Hardenbergstrasse, Marchstrasse, or Vegan."
+    - text: |
+        Which canteen would you like to check?
+        1. Hardenbergstrasse
+        2. Marchstrasse
+        3. Vegan Mensa
+
+        You can say the name or just the number.
 
   utter_ask_category:
     - text: "Which category would you like to see?"
+
+  utter_help:
+    - text: |
+        I'm not sure I understood. Here's what I can do:
+        - Show canteen menus (e.g., "menu for Hardenbergstrasse")
+        - Filter by diet (e.g., "vegan options")
+        - Check prices (e.g., "what's under 3 euros?")
+        - Suggest meals (e.g., "meal for 5 euros")
+
+        What would you like?
 
 actions:
   - action_check_menu
