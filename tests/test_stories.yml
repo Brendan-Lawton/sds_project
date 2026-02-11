@@ -2,90 +2,241 @@
 #### If you want to learn more, please see the docs: https://rasa.com/docs/rasa/testing-your-assistant
 
 stories:
-- story: happy path 1
-  steps:
-  - user: |
-      hello there!
-    intent: greet
-  - action: utter_greet
-  - user: |
-      amazing
-    intent: mood_great
-  - action: utter_happy
 
-- story: happy path 2
-  steps:
-  - user: |
-      hello there!
-    intent: greet
-  - action: utter_greet
-  - user: |
-      amazing
-    intent: mood_great
-  - action: utter_happy
-  - user: |
-      bye-bye!
-    intent: goodbye
-  - action: utter_goodbye
+# ==================== HAPPY PATHS ====================
 
-- story: sad path 1
+- story: greet and check menu at canteen 1
   steps:
   - user: |
       hello
     intent: greet
   - action: utter_greet
   - user: |
-      not good
-    intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - user: |
-      yes
-    intent: affirm
-  - action: utter_happy
+      show me the menu at Hardenbergstrasse
+    intent: ask_canteen_menu
+    entities:
+    - canteen: Hardenbergstrasse
+  - action: action_check_menu
 
-- story: sad path 2
+- story: check menu using canteen index
+  steps:
+  - user: |
+      what's on the menu?
+    intent: ask_canteen_menu
+  - action: action_check_menu
+  - slot_was_set:
+    - awaiting_canteen: true
+  - user: |
+      canteen 1
+    intent: inform_canteen
+    entities:
+    - canteen: canteen 1
+  - action: action_set_canteen
+  - action: action_check_menu
+
+- story: check menu and select category
+  steps:
+  - user: |
+      menu for vegan please
+    intent: ask_canteen_menu
+    entities:
+    - canteen: vegan
+  - action: action_check_menu
+  - slot_was_set:
+    - awaiting_category: true
+  - user: |
+      show me Essen
+    intent: inform_category
+    entities:
+    - category: Essen
+  - action: action_show_category
+
+- story: filter by vegan dietary restriction
+  steps:
+  - user: |
+      menu for Marchstrasse
+    intent: ask_canteen_menu
+    entities:
+    - canteen: Marchstrasse
+  - action: action_check_menu
+  - user: |
+      show me vegan options
+    intent: ask_dietary_menu
+  - action: action_filter_dietary
+
+- story: filter by vegetarian
+  steps:
+  - user: |
+      what's at Hardenberg?
+    intent: ask_canteen_menu
+    entities:
+    - canteen: Hardenberg
+  - action: action_check_menu
+  - user: |
+      vegetarian dishes please
+    intent: ask_dietary_menu
+  - action: action_filter_dietary
+
+- story: filter by nut-free
+  steps:
+  - user: |
+      show menu for canteen 2
+    intent: ask_canteen_menu
+    entities:
+    - canteen: canteen 2
+  - action: action_check_menu
+  - user: |
+      I have a nut allergy
+    intent: ask_dietary_menu
+  - action: action_filter_dietary
+
+- story: find meals under budget
+  steps:
+  - user: |
+      menu at vegan mensa
+    intent: ask_canteen_menu
+    entities:
+    - canteen: vegan
+  - action: action_check_menu
+  - user: |
+      what can I get for 3 euros?
+    intent: ask_affordable_menu
+    entities:
+    - budget: "3"
+  - action: action_filter_by_price
+
+- story: find affordable items with decimal budget
+  steps:
+  - user: |
+      Hardenbergstrasse menu
+    intent: ask_canteen_menu
+    entities:
+    - canteen: Hardenbergstrasse
+  - action: action_check_menu
+  - user: |
+      items under 4.50 euros
+    intent: ask_affordable_menu
+    entities:
+    - budget: "4.50"
+  - action: action_filter_by_price
+
+- story: suggest budget meal combo
+  steps:
+  - user: |
+      menu for Marchstrasse
+    intent: ask_canteen_menu
+    entities:
+    - canteen: Marchstrasse
+  - action: action_check_menu
+  - user: |
+      suggest a meal for 5 euros
+    intent: ask_budget_meal
+    entities:
+    - budget: "5"
+  - action: action_suggest_budget_meal
+
+- story: suggest meal with main and side
+  steps:
+  - user: |
+      what's at canteen 1?
+    intent: ask_canteen_menu
+    entities:
+    - canteen: canteen 1
+  - action: action_check_menu
+  - user: |
+      main and side for 6 euros
+    intent: ask_budget_meal
+    entities:
+    - budget: "6"
+  - action: action_suggest_budget_meal
+
+- story: goodbye resets and ends conversation
   steps:
   - user: |
       hello
     intent: greet
   - action: utter_greet
   - user: |
-      not good
-    intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - user: |
-      not really
-    intent: deny
-  - action: utter_goodbye
-
-- story: sad path 3
-  steps:
-  - user: |
-      hi
-    intent: greet
-  - action: utter_greet
-  - user: |
-      very terrible
-    intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - user: |
-      no
-    intent: deny
-  - action: utter_goodbye
-
-- story: say goodbye
-  steps:
-  - user: |
-      bye-bye!
+      bye
     intent: goodbye
+  - action: action_reset_menu_slots
   - action: utter_goodbye
 
-- story: bot challenge
+# ==================== ERROR PATHS ====================
+
+- story: dietary filter without menu loaded
   steps:
   - user: |
-      are you a bot?
-    intent: bot_challenge
-  - action: utter_iamabot
+      show me vegan options
+    intent: ask_dietary_menu
+  - action: action_filter_dietary
+
+- story: price filter without menu loaded
+  steps:
+  - user: |
+      what's under 3 euros?
+    intent: ask_affordable_menu
+    entities:
+    - budget: "3"
+  - action: action_filter_by_price
+
+- story: budget meal without menu loaded
+  steps:
+  - user: |
+      suggest a meal for 5 euros
+    intent: ask_budget_meal
+    entities:
+    - budget: "5"
+  - action: action_suggest_budget_meal
+
+- story: unknown canteen triggers prompt
+  steps:
+  - user: |
+      what's on the menu?
+    intent: ask_canteen_menu
+  - action: action_check_menu
+  - slot_was_set:
+    - awaiting_canteen: true
+
+- story: fallback on gibberish
+  steps:
+  - user: |
+      asdfghjkl zxcvbnm
+    intent: nlu_fallback
+  - action: utter_help
+
+- story: fallback then recover with menu request
+  steps:
+  - user: |
+      blah blah random words
+    intent: nlu_fallback
+  - action: utter_help
+  - user: |
+      menu for Hardenbergstrasse
+    intent: ask_canteen_menu
+    entities:
+    - canteen: Hardenbergstrasse
+  - action: action_check_menu
+
+- story: goodbye after checking menu resets state
+  steps:
+  - user: |
+      menu at vegan
+    intent: ask_canteen_menu
+    entities:
+    - canteen: vegan
+  - action: action_check_menu
+  - user: |
+      goodbye
+    intent: goodbye
+  - action: action_reset_menu_slots
+  - action: utter_goodbye
+
+- story: dietary restriction provided directly
+  steps:
+  - user: |
+      vegan
+    intent: inform_dietary_restriction
+    entities:
+    - dietary_restriction: vegan
+  - action: action_filter_dietary

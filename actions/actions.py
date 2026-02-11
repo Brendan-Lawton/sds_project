@@ -473,8 +473,16 @@ class ActionFilterByPrice(Action):
         tracker: Tracker,
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
-        budget = tracker.get_slot("budget")
+        budget_slot = tracker.get_slot("budget")
         cached_menu_json = tracker.get_slot("cached_menu")
+
+        # Convert budget to float
+        budget = None
+        if budget_slot is not None:
+            try:
+                budget = float(str(budget_slot).replace(",", "."))
+            except ValueError:
+                pass
 
         # Try to extract budget from message if not in slot
         if budget is None:
@@ -547,8 +555,16 @@ class ActionSuggestBudgetMeal(Action):
         tracker: Tracker,
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
-        budget = tracker.get_slot("budget")
+        budget_slot = tracker.get_slot("budget")
         cached_menu_json = tracker.get_slot("cached_menu")
+
+        # Convert budget to float
+        budget = None
+        if budget_slot is not None:
+            try:
+                budget = float(str(budget_slot).replace(",", "."))
+            except ValueError:
+                pass
 
         # Try to extract budget from message if not in slot
         if budget is None:
