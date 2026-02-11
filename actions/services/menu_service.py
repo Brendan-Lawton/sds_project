@@ -3,6 +3,8 @@ from typing import Optional
 import requests
 from bs4 import BeautifulSoup
 import html
+from enum import Enum
+
 
 
 class MenuServiceError(Exception):
@@ -27,6 +29,10 @@ class MenuItem:
     allergens: list[str] = field(default_factory=list)
     additives: list[str] = field(default_factory=list)
 
+class PriceCategory(Enum):
+    Student = "student"
+    EMPLOYEE = "employee"
+    GUEST = "guest"
 
 @dataclass
 class MenuCategory:
@@ -98,7 +104,7 @@ _ADDITIVES: dict[str, str] = {
 class MenuService:
     _BASE_URL = "https://www.stw.berlin/xhr/speiseplan-wochentag.html"
 
-    def get_menu(self, canteen_id: str, date: str) -> MenuDTO:
+    def get_menu(self, canteen_id: str, date: str, price_category: Enum, max_price: float) -> MenuDTO:
         """
         Get the menu for a given canteen and date.
 
@@ -115,7 +121,7 @@ class MenuService:
         """
         html_content = self._fetch_menu_html(canteen_id, date)
 
-        return self._parse_menu_html(html_content, canteen_id, date)
+        return self._parse_menu_html(html_content, canteen_id, date, price_category, max_price)
 
     def _fetch_menu_html(self, canteen_id: str, date: str) -> str:
         """Fetch the raw HTML content from the menu API using multipart/form-data."""
@@ -138,7 +144,7 @@ class MenuService:
         except requests.exceptions.RequestException as e:
             raise MenuFetchError(f"Request failed for canteen {canteen_id} on {date}: {str(e)}")
 
-    def _parse_menu_html(self, html_content: str, canteen_id: str, date: str) -> MenuDTO:
+    def _parse_menu_html(self, html_content: str, canteen_id: str, date: str, price_category: Enum, max_price: float) -> MenuDTO:
         """Parse the HTML content into a MenuDTO."""
         try:
             soup = BeautifulSoup(html_content, "html.parser")
@@ -151,9 +157,14 @@ class MenuService:
                 raise MenuParseError(f"No menu categories found for canteen {canteen_id} on {date}")
 
             for wrapper in group_wrappers:
-                category = self._parse_category(wrapper)
-                if category:
-                    categories.append(category)
+                try:
+                    category = self._parse_category(wrapper, price_category, max_price)
+                    print("Parsed category:", category)  # Debug: Print the parsed category
+                    if category:
+                        categories.append(category)
+                except Exception as e:
+                    print(f"Error parsing category: {e}")
+                    continue  # Skip to the next category
 
             return MenuDTO(date=date, canteen_id=canteen_id, categories=categories)
 
@@ -162,7 +173,29 @@ class MenuService:
         except Exception as e:
             raise MenuParseError(f"Failed to parse menu HTML for canteen {canteen_id} on {date}: {str(e)}")
 
-    def _parse_category(self, wrapper) -> Optional[MenuCategory]:
+    # def filter_menu_by_max_price(menu: MenuDTO, max_price: float) -> MenuDTO:
+    #     """Filter menu items by max_price."""
+    #     filtered_categories = []
+    #     for category in menu.categories:
+    #         filtered_items = []
+    #         for item in category.items:
+    #             if not item.price:
+    #                 continue  # Skip items with no price
+    #             # Extract the numeric value from the price string (e.g., "3.50 €" -> 3.50)
+    #             price_value = float(item.price.replace("€", "").strip())
+    #             if price_value <= max_price or max_price == 0:
+    #                 filtered_items.append(item)
+    #         if filtered_items:
+    #             filtered_categories.append(MenuCategory(name=category.name, items=filtered_items))
+
+    #     return MenuDTO(
+    #         date=menu.date,
+    #         canteen_id=menu.canteen_id,
+    #         categories=filtered_categories,
+    #     )
+
+
+    def _parse_category(self, wrapper, price_category, max_price) -> Optional[MenuCategory]:
         """Parse a single category wrapper into a MenuCategory."""
         category_name_elem = wrapper.find("div", class_="splGroup")
         if not category_name_elem:
@@ -173,13 +206,13 @@ class MenuService:
 
         meal_rows = wrapper.find_all("div", class_="splMeal")
         for meal_row in meal_rows:
-            item = self._parse_meal_item(meal_row)
+            item = self._parse_meal_item(meal_row, price_category, max_price)
             if item:
                 items.append(item)
 
         return MenuCategory(name=category_name, items=items)
 
-    def _parse_meal_item(self, meal_row) -> Optional[MenuItem]:
+    def _parse_meal_item(self, meal_row, price_category, max_price) -> Optional[MenuItem]:
         """Parse a single meal row into a MenuItem."""
         name_elem = meal_row.find("span", class_="bold")
         if not name_elem:
@@ -188,25 +221,67 @@ class MenuService:
         name = name_elem.get_text(strip=True)
 
         price = self._extract_price(meal_row)
-        allergens, additives = self._extract_allergens_and_additives(meal_row)
+        price_string = ""
+        if price:
+            if price_category == PriceCategory.Student:
+                price_string = html.unescape(price.get("stud") or "").replace("\u20ac", "€").strip()
+            elif price_category == PriceCategory.EMPLOYEE:
+                price_string = html.unescape(price.get("employ") or "").replace("\u20ac", "€").strip()
+            elif price_category == PriceCategory.GUEST:
+                price_string = html.unescape(price.get("guest") or "").replace("\u20ac", "€").strip()
 
+            if float(max_price) > 0.0 and price_string:
+                try:
+                    if float(price_string.replace("€", "").replace(",", ".").strip()) > float(max_price):
+                        return None
+                except ValueError:
+                    pass
+
+        allergens, additives = self._extract_allergens_and_additives(meal_row)
         return MenuItem(
             name=name,
-            price=price,
+            price=price_string,
             allergens=allergens,
             additives=additives,
         )
 
-    def _extract_price(self, meal_row) -> Optional[str]:
-        """Extract price from the meal row."""
+    def from_string(self, string):
+        # Remove potential whitespace, quotes, etc.
+        string = string
+        # Parse the string - assuming format like "name,age,location"
+        parts = string.split("/")
+        if len(parts) != 3:
+            raise ValueError("String format incorrect")
+
+        # Extract prices and remove "€" if present
+        price_stud = parts[0].replace("€", "").strip()
+        price_employ = parts[1].replace("€", "").strip()
+        price_guest = parts[2].replace("€", "").strip()
+
+        return {"stud": price_stud, "employ": price_employ, "guest": price_guest}
+
+
+    def _extract_price(self, meal_row):
         price_div = meal_row.find("div", class_="col-xs-12 col-md-3 text-right")
         if not price_div:
             return None
 
-        price_text = price_div.get_text(strip=True)
-        if price_text and "€" in price_text:
-            return html.unescape(price_text).replace("\u20ac", "€").strip()
+        # price_text = price_div.get_text(strip=True)
+        price_data = self.from_string(price_div.get_text(strip=True))
+        print(price_data)
+
+        if price_data:
+            return price_data
+
         return None
+        # try:
+        #     return self.from_string(price_text)
+        # except ValueError as e:
+        #     print(f"Failed to parse price: {e}")
+        #     return None
+
+
+
 
     def _extract_allergens_and_additives(self, meal_row) -> tuple[list[str], list[str]]:
         """Extract and translate allergens and additives from the meal row."""

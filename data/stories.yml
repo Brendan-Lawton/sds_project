@@ -1,83 +1,178 @@
 version: "3.1"
 
 stories:
+  - story: greet and ask menu, select category
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - intent: ask_canteen_menu
+        entities:
+          - canteen: "Hardenbergstrasse"
+      - action: action_check_menu
 
-- story: greet and ask menu, select category
-  steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: ask_canteen_menu
-    entities:
-    - canteen: "Hardenbergstrasse"
-  - action: action_check_menu
-  - slot_was_set:
-    - awaiting_category: true
-  - intent: inform_category
-    entities:
-    - category: "Desserts"
-  - action: action_show_category
+      - slot_was_set:
+          - awaiting_price_category: true
+      - intent: inform_price_category
+        entities:
+          - price_category: "student"
+      - action: action_check_menu
 
-- story: ask menu without canteen, then select canteen and category
-  steps:
-  - intent: ask_canteen_menu
-  - action: action_check_menu
-  - slot_was_set:
-    - awaiting_canteen: true
-  - intent: inform_canteen
-    entities:
-    - canteen: "vegan"
-  - action: action_set_canteen
-  - action: action_check_menu
-  - slot_was_set:
-    - awaiting_category: true
-  - intent: inform_category
-    entities:
-    - category: "Essen"
-  - action: action_show_category
+      - slot_was_set:
+          - awaiting_max_price: true
+      - intent: inform_max_price
+        entities:
+          - max_price: "3.50"
+      - action: action_check_menu
 
-- story: ask menu with canteen, select multiple categories
-  steps:
-  - intent: ask_canteen_menu
-    entities:
-    - canteen: "Marchstrasse"
-  - action: action_check_menu
-  - slot_was_set:
-    - awaiting_category: true
-  - intent: inform_category
-    entities:
-    - category: "Vorspeisen"
-  - action: action_show_category
-  - intent: inform_category
-    entities:
-    - category: "Desserts"
-  - action: action_show_category
+      - slot_was_set:
+          - awaiting_category: true
+      - intent: inform_food_category
+        entities:
+          - category: "Desserts"
+      - action: action_show_category
 
-- story: user provides canteen when asked
-  steps:
-  - intent: ask_canteen_menu
-  - action: action_check_menu
-  - slot_was_set:
-    - awaiting_canteen: true
-  - intent: inform_canteen
-    entities:
-    - canteen: "Hardenberg"
-  - action: action_set_canteen
-  - action: action_check_menu
+  - story: ask menu without canteen, then select canteen and category
+    steps:
+      - intent: ask_canteen_menu
+      - action: action_check_menu
 
-- story: user changes date then asks for menu
-  steps:
-  - intent: inform_date
-    entities:
-    - date: "tomorrow"
-  - action: action_set_menu_date
-  - intent: ask_canteen_menu
-    entities:
-    - canteen: "vegan"
-  - action: action_check_menu
+      - slot_was_set:
+          - awaiting_canteen: true
+      - intent: inform_canteen
+        entities:
+          - canteen: "vegan"
+      - action: action_set_canteen
+      - action: action_check_menu
 
-- story: greet then goodbye
-  steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: goodbye
-  - action: utter_goodbye
+      - slot_was_set:
+          - awaiting_price_category: true
+      - intent: inform_price_category
+        entities:
+          - price_category: "employee"
+      - action: action_check_menu
+
+      - slot_was_set:
+          - awaiting_max_price: true
+      - intent: inform_max_price
+        entities:
+          - max_price: "3.50"
+      - action: action_check_menu
+
+      - slot_was_set:
+          - awaiting_category: true
+      - intent: inform_food_category
+        entities:
+          - category: "Essen"
+      - action: action_show_category
+
+  - story: user wants to see another category
+    steps:
+      - action: action_show_category
+      - slot_was_set:
+          - awaiting_confirmation: true
+      - intent: affirm
+      - action: utter_ask_category
+      - slot_was_set:
+          - awaiting_confirmation: false
+
+  - story: user does not want to see another category
+    steps:
+      - action: action_show_category
+      - slot_was_set:
+          - awaiting_confirmation: true
+      - intent: deny
+      - action: action_reset_menu_slots
+      - action: restart
+      - slot_was_set:
+          - awaiting_confirmation: false
+
+  - story: ask menu with canteen, select multiple categories
+    steps:
+      - intent: ask_canteen_menu
+        entities:
+          - canteen: "Marchstrasse"
+      - action: action_check_menu
+
+      - slot_was_set:
+          - awaiting_price_category: true
+      - intent: inform_price_category
+        entities:
+          - price_category: "guest"
+      - action: action_check_menu
+
+      - slot_was_set:
+          - awaiting_max_price: true
+      - intent: inform_max_price
+        entities:
+          - max_price: "3.50"
+      - action: action_check_menu
+
+      - slot_was_set:
+          - awaiting_category: true
+      - intent: inform_food_category
+        entities:
+          - category: "Vorspeisen"
+      - action: action_show_category
+
+      - intent: inform_food_category
+        entities:
+          - category: "Desserts"
+      - action: action_show_category
+
+  - story: user provides canteen when asked
+    steps:
+      - intent: ask_canteen_menu
+      - action: action_check_menu
+      - slot_was_set:
+          - awaiting_canteen: true
+      - intent: inform_canteen
+        entities:
+          - canteen: "Hardenberg"
+      - action: action_set_canteen
+      - action: action_check_menu
+
+      - slot_was_set:
+          - awaiting_price_category: true
+      - intent: inform_price_category
+        entities:
+          - price_category: "student"
+      - action: action_check_menu
+
+      - slot_was_set:
+          - awaiting_max_price: true
+      - intent: inform_max_price
+        entities:
+          - max_price: "3.50"
+      - action: action_check_menu
+
+  - story: user changes date then asks for menu
+    steps:
+      - intent: inform_date
+        entities:
+          - date: "tomorrow"
+      - action: action_set_menu_date
+      - intent: ask_canteen_menu
+        entities:
+          - canteen: "vegan"
+      - action: action_check_menu
+
+      - slot_was_set:
+          - awaiting_price_category: true
+      - intent: inform_price_category
+        entities:
+          - price_category: "student"
+      - action: action_check_menu
+
+      - slot_was_set:
+          - awaiting_max_price: true
+      - intent: inform_max_price
+        entities:
+          - max_price: "3.50"
+      - action: action_check_menu
+
+  # - story: greet then goodbye
+  #   steps:
+  #     - intent: greet
+  #     - action: utter_greet
+  #     - intent: goodbye
+  #     - action: utter_goodbye

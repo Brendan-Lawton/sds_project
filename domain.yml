@@ -8,12 +8,16 @@ intents:
   - ask_canteen_menu
   - inform_canteen
   - inform_date
-  - inform_category
+  - inform_food_category
+  - inform_price_category
+  - inform_max_price
 
 entities:
   - canteen
   - date
   - category
+  - price_category
+  - max_price
 
 slots:
   canteen:
@@ -51,6 +55,41 @@ slots:
     mappings:
       - type: custom
 
+  awaiting_price_category:
+    type: bool
+    initial_value: false
+    influence_conversation: true
+    mappings:
+      - type: custom
+
+  awaiting_max_price:
+    type: bool
+    initial_value: false
+    influence_conversation: true
+    mappings:
+      - type: custom
+
+  awaiting_confirmation:
+    type: bool
+    initial_value: false
+    influence_conversation: true
+    mappings:
+      - type: custom
+
+  price_category:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: price_category
+
+  max_price:
+    type: float
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: max_price
+
   available_categories:
     type: list
     influence_conversation: false
@@ -65,13 +104,10 @@ slots:
 
 responses:
   utter_greet:
-    - text: "Hey! How can I help you today?"
+    - text: "Hey! Welcome to the Canteen bot! Would you like to see a menu?"
 
   utter_goodbye:
     - text: "Bye! Have a nice meal!"
-
-  utter_did_that_help:
-    - text: "Did that help you?"
 
   utter_ask_canteen:
     - text: "Which canteen would you like to check? Available options: Hardenbergstrasse, Marchstrasse, or Vegan."
@@ -79,7 +115,14 @@ responses:
   utter_ask_category:
     - text: "Which category would you like to see?"
 
+  utter_ask_price_category:
+    - text: "Great, thanks! Before I display the category menu items, can you confirm what pricing category you'd like to see? There are three categories: student, employee, and guest."
+
+  utter_ask_max_price:
+    - text: "Is there a maximum price you can pay for these menu items? I will only show you the ones you can afford. If there isn't a maximum, then please type 0."
+
 actions:
+  - action_session_start
   - action_check_menu
   - action_show_category
   - action_set_canteen

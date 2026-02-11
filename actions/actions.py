@@ -9,10 +9,10 @@ from datetime import date
 from typing import Any, Text, Dict, List, Optional
 
 from rasa_sdk import Action, Tracker
-from rasa_sdk.events import SlotSet
+from rasa_sdk.events import SlotSet, SessionStarted, ActionExecuted, EventType
 from rasa_sdk.executor import CollectingDispatcher
 
-from actions.services.menu_service import MenuService, MenuFetchError, MenuParseError, MenuDTO
+from actions.services.menu_service import MenuService, MenuFetchError, MenuParseError, MenuDTO, PriceCategory
 
 
 CANTEENS: Dict[str, str] = {
@@ -128,6 +128,8 @@ class ActionCheckMenu(Action):
     ) -> List[Dict[Text, Any]]:
         canteen_slot = tracker.get_slot("canteen")
         date_slot = tracker.get_slot("menu_date")
+        price_category = tracker.get_slot("price_category")
+        max_price = tracker.get_slot("max_price")
 
         canteen_id = resolve_canteen(canteen_slot)
         if not canteen_id:
@@ -140,15 +142,42 @@ class ActionCheckMenu(Action):
         menu_date = date_slot if date_slot else date.today().isoformat()
         canteen_name = CANTEEN_NAMES.get(canteen_id, canteen_id)
 
+        if not price_category:
+            dispatcher.utter_message(
+                text="Before I show the menu, which pricing category should I use? "
+                    "Student, employee, or guest?"
+            )
+            return [SlotSet("awaiting_price_category", True)]
+
+        price_category_str = price_category.lower()
+        if price_category_str == "student":
+            price_enum = PriceCategory.Student
+        elif price_category_str == "employee":
+            price_enum = PriceCategory.EMPLOYEE
+        elif price_category_str == "guest":
+            price_enum = PriceCategory.GUEST
+        else:
+            dispatcher.utter_message(
+                text="Please choose one of: student, employee, or guest."
+            )
+            return [SlotSet("awaiting_price_category", True)]
+
+        if not max_price:
+            dispatcher.utter_message(
+                text="Thanks for confirming the price category! Is there a maximum price you can pay for these menu items?"
+                    " I will only show you the ones you can afford. If these isn't a maximum, then please type '0.0'"
+            )
+            return [SlotSet("awaiting_max_price", True)]
+
         service = MenuService()
         try:
-            menu = service.get_menu(canteen_id, menu_date)
+            menu = service.get_menu(canteen_id, menu_date, price_enum, max_price)
+            print("got menu: ", menu)
             if not menu.categories or all(not cat.items for cat in menu.categories):
                 dispatcher.utter_message(
                     text=f"No menu available for {canteen_name} on {menu_date}."
                 )
                 return [SlotSet("awaiting_canteen", False)]
-
             category_names = [cat.name for cat in menu.categories if cat.items]
             categories_list = ", ".join(category_names)
 
@@ -225,7 +254,6 @@ class ActionShowCategory(Action):
 
         return [SlotSet("menu_category", selected_category)]
 
-
 class ActionSetCanteen(Action):
 
     def name(self) -> Text:
@@ -288,7 +316,6 @@ class ActionSetMenuDate(Action):
 
 
 class ActionResetMenuSlots(Action):
-
     def name(self) -> Text:
         return "action_reset_menu_slots"
 
@@ -298,8 +325,12 @@ class ActionResetMenuSlots(Action):
         tracker: Tracker,
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
+        dispatcher.utter_message(text="OK, goodbye! If you found what you wanted, then bon appétit! If you'd like to see more canteens or menu options, just ask me what's for lunch.")
+
         return [
             SlotSet("canteen", None),
+            SlotSet("price_category", None),
+            SlotSet("max_price", None),
             SlotSet("menu_date", None),
             SlotSet("menu_category", None),
             SlotSet("awaiting_canteen", False),
@@ -307,3 +338,13 @@ class ActionResetMenuSlots(Action):
             SlotSet("available_categories", None),
             SlotSet("cached_menu", None),
         ]
+
+class ActionSessionStart(Action):
+    def name(self) -> Text:
+        return "action_session_start"
+
+    async def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]
+    ) -> List[Dict[Text, Any]]:
+        return [SessionStarted(), ActionExecuted("action_listen")]
+

@@ -1,35 +1,78 @@
 version: "3.1"
 
 rules:
+  - rule: Greet the user at the start
+    conversation_start: true
+    steps:
+      - action: utter_greet
 
-- rule: Say goodbye anytime the user says goodbye
-  steps:
-  - intent: goodbye
-  - action: utter_goodbye
+  - rule: Say goodbye anytime the user says goodbye
+    steps:
+      - intent: goodbye
+      - action: utter_goodbye
+      - action: action_reset_menu_slots
+      - action: restart
 
-- rule: Respond to menu request
-  steps:
-  - intent: ask_canteen_menu
-  - action: action_check_menu
+  - rule: Respond to menu request
+    steps:
+      - intent: ask_canteen_menu
+      - action: action_check_menu
 
-- rule: Handle canteen selection when awaiting
-  condition:
-  - slot_was_set:
-    - awaiting_canteen: true
-  steps:
-  - intent: inform_canteen
-  - action: action_set_canteen
-  - action: action_check_menu
+  - rule: Handle canteen selection when awaiting
+    condition:
+      - slot_was_set:
+          - awaiting_canteen: true
+    steps:
+      - intent: inform_canteen
+      - action: action_set_canteen
+      - action: action_check_menu
 
-- rule: Handle category selection when awaiting
-  condition:
-  - slot_was_set:
-    - awaiting_category: true
-  steps:
-  - intent: inform_category
-  - action: action_show_category
+  - rule: Handle price category selection
+    condition:
+      - slot_was_set:
+          - awaiting_price_category: true
+    steps:
+      - intent: inform_price_category
+      - action: action_check_menu
 
-- rule: Set date when user provides it
-  steps:
-  - intent: inform_date
-  - action: action_set_menu_date
+  - rule: Handle max price selection
+    condition:
+      - slot_was_set:
+          - awaiting_max_price: true
+    steps:
+      - intent: inform_max_price
+      - action: action_check_menu
+
+  - rule: Handle food category selection
+    condition:
+      - slot_was_set:
+          - awaiting_category: true
+    steps:
+      - intent: inform_food_category
+      - action: action_show_category
+
+  - rule: Set date when user provides it
+    steps:
+      - intent: inform_date
+      - action: action_set_menu_date
+
+  - rule: Handle denial for another category
+    condition:
+      - slot_was_set:
+          - awaiting_confirmation: true
+    steps:
+      - intent: deny
+      - action: action_reset_menu_slots
+      - action: restart
+      - slot_was_set:
+          - awaiting_confirmation: false
+
+  - rule: Handle affirmation for another category
+    condition:
+      - slot_was_set:
+          - awaiting_confirmation: true
+    steps:
+      - intent: affirm
+      - action: utter_ask_category
+      - slot_was_set:
+          - awaiting_confirmation: false

@@ -1,186 +1,206 @@
 version: "3.1"
 
 nlu:
-- intent: greet
-  examples: |
-    - hey
-    - hello
-    - hi
-    - hello there
-    - good morning
-    - good evening
-    - moin
-    - hey there
-    - let's go
-    - hey dude
-    - goodmorning
-    - goodevening
-    - good afternoon
+  - intent: greet
+    examples: |
+      - hey
+      - hello
+      - hi
+      - hello there
+      - good morning
+      - good evening
+      - moin
+      - hey there
+      - let's go
+      - hey dude
+      - goodmorning
+      - goodevening
+      - good afternoon
 
-- intent: goodbye
-  examples: |
-    - cu
-    - good by
-    - cee you later
-    - good night
-    - bye
-    - goodbye
-    - have a nice day
-    - see you around
-    - bye bye
-    - see you later
+  - intent: goodbye
+    examples: |
+      - cu
+      - good by
+      - cee you later
+      - good night
+      - bye
+      - goodbye
+      - have a nice day
+      - see you around
+      - bye bye
+      - see you later
 
-- intent: affirm
-  examples: |
-    - yes
-    - y
-    - indeed
-    - of course
-    - that sounds good
-    - correct
+  - intent: affirm
+    examples: |
+      - yes
+      - y
+      - indeed
+      - of course
+      - that sounds good
+      - correct
 
-- intent: deny
-  examples: |
-    - no
-    - n
-    - never
-    - I don't think so
-    - don't like that
-    - no way
-    - not really
+  - intent: deny
+    examples: |
+      - no
+      - n
+      - never
+      - I don't think so
+      - don't like that
+      - no way
+      - not really
 
-- intent: ask_canteen_menu
-  examples: |
-    - what's for lunch today?
-    - what is on the menu?
-    - what's for dinner?
-    - what's being served today?
-    - what's the canteen serving?
-    - what's on the canteen menu?
-    - what's for lunch?
-    - what is for dinner today?
-    - what's on today's menu?
-    - what are they serving today?
-    - what's the menu for today?
-    - what's available in the canteen?
-    - what's being offered for lunch?
-    - what's on the dinner menu?
-    - what meals are available today?
-    - show me the menu
-    - can I see the menu?
-    - menu please
-    - what can I eat today?
-    - what food is there?
-    - what's the menu at [Hardenbergstrasse](canteen)?
-    - what's for lunch at [Marchstrasse](canteen)?
-    - show me the [vegan](canteen) menu
-    - menu for [Hardenberg](canteen)
-    - what's on the menu at [march](canteen)?
-    - [Hardenbergstrasse](canteen) menu
-    - [Marchstrasse](canteen) menu please
-    - [vegan](canteen) canteen menu
-    - what's available at [Hardenbergstrasse](canteen)?
-    - what are they serving at [Marchstrasse](canteen)?
-    - show me what's at [vegan](canteen)
-    - menu for [Hardenbergstrasse](canteen) on [tomorrow](date)
-    - what's for lunch at [Marchstrasse](canteen) [next monday](date)?
-    - [vegan](canteen) menu for [2026-01-22](date)
-    - what's the menu for [today](date)?
-    - show me the menu for [tomorrow](date)
-    - what's available [next week](date)?
+  - intent: ask_canteen_menu
+    examples: |
+      - what's for lunch today?
+      - what is on the menu?
+      - what's for dinner?
+      - what's being served today?
+      - what's the canteen serving?
+      - what's on the canteen menu?
+      - what's for lunch?
+      - what is for dinner today?
+      - what's on today's menu?
+      - what are they serving today?
+      - what's the menu for today?
+      - what's available in the canteen?
+      - what's being offered for lunch?
+      - what's on the dinner menu?
+      - what meals are available today?
+      - show me the menu
+      - can I see the menu?
+      - menu please
+      - what can I eat today?
+      - what food is there?
+      - what's the menu at [Hardenbergstrasse](canteen)?
+      - what's for lunch at [Marchstrasse](canteen)?
+      - show me the [vegan](canteen) menu
+      - menu for [Hardenberg](canteen)
+      - what's on the menu at [march](canteen)?
+      - [Hardenbergstrasse](canteen) menu
+      - [Marchstrasse](canteen) menu please
+      - [vegan](canteen) canteen menu
+      - what's available at [Hardenbergstrasse](canteen)?
+      - what are they serving at [Marchstrasse](canteen)?
+      - show me what's at [vegan](canteen)
+      - menu for [Hardenbergstrasse](canteen) on [tomorrow](date)
+      - what's for lunch at [Marchstrasse](canteen) [next monday](date)?
+      - [vegan](canteen) menu for [2026-01-22](date)
+      - what's the menu for [today](date)?
+      - show me the menu for [tomorrow](date)
+      - what's available [next week](date)?
 
-- intent: inform_canteen
-  examples: |
-    - [Hardenbergstrasse](canteen)
-    - [Marchstrasse](canteen)
-    - [vegan](canteen)
-    - [Hardenberg](canteen)
-    - [march](canteen)
-    - [veggie](canteen)
-    - the [Hardenbergstrasse](canteen) one
-    - the [Marchstrasse](canteen) canteen
-    - the [vegan](canteen) mensa
-    - I want [Hardenbergstrasse](canteen)
-    - let's check [Marchstrasse](canteen)
-    - show me [vegan](canteen)
-    - [Hardenbergstrasse](canteen) please
-    - [Marchstrasse](canteen) please
-    - [vegan](canteen) please
+  - intent: inform_canteen
+    examples: |
+      - [Hardenbergstrasse](canteen)
+      - [Marchstrasse](canteen)
+      - [vegan](canteen)
+      - [Hardenberg](canteen)
+      - [march](canteen)
+      - [veggie](canteen)
+      - the [Hardenbergstrasse](canteen) one
+      - the [Marchstrasse](canteen) canteen
+      - the [vegan](canteen) mensa
+      - I want [Hardenbergstrasse](canteen)
+      - let's check [Marchstrasse](canteen)
+      - show me [vegan](canteen)
+      - [Hardenbergstrasse](canteen) please
+      - [Marchstrasse](canteen) please
+      - [vegan](canteen) please
 
-- intent: inform_date
-  examples: |
-    - [today](date)
-    - [tomorrow](date)
-    - [next monday](date)
-    - [next tuesday](date)
-    - [next wednesday](date)
-    - [next thursday](date)
-    - [next friday](date)
-    - [2026-01-22](date)
-    - [2026-01-23](date)
-    - [monday](date)
-    - [tuesday](date)
-    - [wednesday](date)
-    - [thursday](date)
-    - [friday](date)
-    - for [today](date)
-    - for [tomorrow](date)
-    - on [monday](date)
-    - on [2026-01-22](date)
+  - intent: inform_date
+    examples: |
+      - [today](date)
+      - [tomorrow](date)
+      - [next monday](date)
+      - [next tuesday](date)
+      - [next wednesday](date)
+      - [next thursday](date)
+      - [next friday](date)
+      - [2026-01-22](date)
+      - [2026-01-23](date)
+      - [monday](date)
+      - [tuesday](date)
+      - [wednesday](date)
+      - [thursday](date)
+      - [friday](date)
+      - for [today](date)
+      - for [tomorrow](date)
+      - on [monday](date)
+      - on [2026-01-22](date)
 
-- intent: inform_category
-  examples: |
-    - [Vorspeisen](category)
-    - [Salate](category)
-    - [Suppen](category)
-    - [Aktionen](category)
-    - [Essen](category)
-    - [Beilagen](category)
-    - [Desserts](category)
-    - show me [Vorspeisen](category)
-    - show me [Salate](category)
-    - show me [Suppen](category)
-    - show me [Aktionen](category)
-    - show me [Essen](category)
-    - show me [Beilagen](category)
-    - show me [Desserts](category)
-    - I want to see [Vorspeisen](category)
-    - I want to see [Salate](category)
-    - I want to see [Desserts](category)
-    - [Vorspeisen](category) please
-    - [Salate](category) please
-    - [Suppen](category) please
-    - [Desserts](category) please
-    - the [Vorspeisen](category)
-    - the [Salate](category)
-    - the [Essen](category)
-    - let's see [Beilagen](category)
-    - what's in [Desserts](category)?
-    - starters
-    - salads
-    - soups
-    - main dishes
-    - sides
-    - desserts
-    - appetizers
+  - intent: inform_food_category
+    examples: |
+      - [Vorspeisen](category)
+      - [Salate](category)
+      - [Suppen](category)
+      - [Aktionen](category)
+      - [Essen](category)
+      - [Beilagen](category)
+      - [Desserts](category)
+      - show me [Vorspeisen](category)
+      - show me [Salate](category)
+      - show me [Suppen](category)
+      - show me [Aktionen](category)
+      - show me [Essen](category)
+      - show me [Beilagen](category)
+      - show me [Desserts](category)
+      - I want to see [Vorspeisen](category)
+      - I want to see [Salate](category)
+      - I want to see [Desserts](category)
+      - [Vorspeisen](category) please
+      - [Salate](category) please
+      - [Suppen](category) please
+      - [Desserts](category) please
+      - the [Vorspeisen](category)
+      - the [Salate](category)
+      - the [Essen](category)
+      - let's see [Beilagen](category)
+      - what's in [Desserts](category)?
+      - starters
+      - salads
+      - soups
+      - main dishes
+      - sides
+      - desserts
+      - appetizers
 
-- synonym: hardenbergstrasse
-  examples: |
-    - hardenberg
-    - Hardenberg
-    - Hardenbergstrasse
-    - hardenbergstraße
+  - intent: inform_price_category
+    examples: |
+      - Yes, I'm a [student](price_category)
+      - I'm a [student](price_category)
+      - Yes, I'm an [employee](price_category)
+      - I'm an [employee](price_category)
+      - Yes, I'm a [guest](price_category)
+      - I'm a [guest](price_category)
+      - [student](price_category)
+      - [guest](price_category)
+      - [employee](price_category)
 
-- synonym: marchstrasse
-  examples: |
-    - march
-    - March
-    - Marchstrasse
-    - marchstraße
+  - intent: inform_max_price
+    examples: |
+      - price is [0.68](max_price)
+      - [1.50](max_price)
+      - it costs [10.50](max_price)
+      - the price is [99.99](max_price)
+      - about [0.05](max_price)
 
-- synonym: vegan
-  examples: |
-    - veggie
-    - Veggie
-    - Vegan
-    - vegan mensa
+  - synonym: hardenbergstrasse
+    examples: |
+      - hardenberg
+      - Hardenberg
+      - Hardenbergstrasse
+      - hardenbergstraße
+
+  - synonym: marchstrasse
+    examples: |
+      - march
+      - March
+      - Marchstrasse
+      - marchstraße
+
+  - synonym: vegan
+    examples: |
+      - veggie
+      - Veggie
+      - Vegan
+      - vegan mensa
