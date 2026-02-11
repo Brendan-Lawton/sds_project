@@ -111,7 +111,9 @@ responses:
         You can say the name or just the number.
 
   utter_ask_category:
-    - text: "Which category would you like to see?"
+    - text: |
+        Which category would you like to see?
+        Alternatively, you can say suggest a meal for a specific price (e.g., "meal for 5 euros") or ask for dietary options (e.g., "vegan options").
 
   utter_help:
     - text: |

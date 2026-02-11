@@ -224,7 +224,8 @@ class ActionCheckMenu(Action):
             dispatcher.utter_message(
                 text=f"Menu for {canteen_name} on {menu_date} has the following categories:\n"
                 f"{categories_list}\n\n"
-                "Which category would you like to see?"
+                "Which category would you like to see?\n"
+                "Alternatively, you can say suggest a meal for a specific price (e.g., \"meal for 5 euros\") or ask for dietary options (e.g., \"vegan options\")."
             )
 
             return [
@@ -596,9 +597,9 @@ class ActionSuggestBudgetMeal(Action):
             )
             return [SlotSet("budget", budget)]
 
-        # Get main dishes (Essen) and sides (Beilagen)
-        mains_category = next((c for c in menu.categories if c.name.lower() == "essen"), None)
-        sides_category = next((c for c in menu.categories if c.name.lower() == "beilagen"), None)
+        # Get main dishes and sides
+        mains_category = next((c for c in menu.categories if c.name.lower() == "main dishes"), None)
+        sides_category = next((c for c in menu.categories if c.name.lower() == "desserts"), None)
 
         mains_with_price = []
         if mains_category:
