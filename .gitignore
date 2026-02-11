@@ -12,3 +12,5 @@ data/._nlu.yml
 data/._rules.yml
 data/._stories.yml
 
+rasa/models/
+rasa/*.tar.gz
