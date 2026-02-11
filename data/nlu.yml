@@ -248,6 +248,59 @@ nlu:
     - budget meal for [5](budget) euros
     - suggest something for [3.50](budget) euros
 
+- intent: set_price_category
+  examples: |
+    - I'm a [student](price_category)
+    - I am a [student](price_category)
+    - show [student](price_category) prices
+    - [student](price_category) pricing
+    - [student](price_category) price please
+    - switch to [student](price_category) prices
+    - I'm a [worker](price_category)
+    - I am a [worker](price_category)
+    - show [worker](price_category) prices
+    - [worker](price_category) pricing
+    - [worker](price_category) price please
+    - switch to [worker](price_category) prices
+    - I'm a [guest](price_category)
+    - I am a [guest](price_category)
+    - show [guest](price_category) prices
+    - [guest](price_category) pricing
+    - [guest](price_category) price please
+    - switch to [guest](price_category) prices
+    - change price category to [student](price_category)
+    - change price category to [worker](price_category)
+    - change price category to [guest](price_category)
+    - set price to [student](price_category)
+    - set price to [worker](price_category)
+    - set price to [guest](price_category)
+    - use [student](price_category) prices
+    - use [worker](price_category) prices
+    - use [guest](price_category) prices
+
+- synonym: student
+  examples: |
+    - Student
+    - students
+
+- synonym: worker
+  examples: |
+    - Worker
+    - workers
+    - employee
+    - Employee
+    - employees
+    - staff
+    - Staff
+
+- synonym: guest
+  examples: |
+    - Guest
+    - guests
+    - visitor
+    - Visitor
+    - visitors
+
 - synonym: hardenbergstrasse
   examples: |
     - hardenberg

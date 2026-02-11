@@ -60,16 +60,29 @@ def resolve_canteen(canteen_input: Optional[str]) -> Optional[str]:
     return None
 
 
-def parse_student_price(price_str: Optional[str]) -> Optional[float]:
-    """Extract student price (first value) from price string like '€ 1,95/2,15/2,35'."""
+PRICE_CATEGORY_INDEX = {
+    "student": 0,
+    "worker": 1,
+    "guest": 2,
+}
+
+
+def parse_price(price_str: Optional[str], category: str = "student") -> Optional[float]:
+    """Extract price from price string like '€ 1,95/2,15/2,35' based on category.
+
+    The price string contains 3 values separated by '/':
+    index 0 = student, index 1 = worker, index 2 = guest.
+    """
     if not price_str:
         return None
     try:
-        # Remove € symbol and whitespace, take first price (student price)
         price_str = price_str.replace("€", "").strip()
-        first_price = price_str.split("/")[0].strip()
-        # Convert German format (comma) to float
-        return float(first_price.replace(",", "."))
+        parts = price_str.split("/")
+        idx = PRICE_CATEGORY_INDEX.get(category, 0)
+        if idx >= len(parts):
+            idx = 0
+        price_part = parts[idx].strip()
+        return float(price_part.replace(",", "."))
     except (ValueError, IndexError):
         return None
 
@@ -378,6 +391,7 @@ class ActionResetMenuSlots(Action):
             SlotSet("cached_menu", None),
             SlotSet("dietary_restriction", None),
             SlotSet("budget", None),
+            SlotSet("price_category", "student"),
         ]
 
 
@@ -394,6 +408,7 @@ class ActionFilterDietary(Action):
     ) -> List[Dict[Text, Any]]:
         dietary_restriction = tracker.get_slot("dietary_restriction")
         cached_menu_json = tracker.get_slot("cached_menu")
+        price_category = tracker.get_slot("price_category") or "student"
 
         if not dietary_restriction:
             # Try to extract from message
@@ -450,7 +465,8 @@ class ActionFilterDietary(Action):
                 found_items = True
                 lines.append(f"\n**{category.name}**")
                 for item in matching_items:
-                    price_str = f" - {item.price}" if item.price else ""
+                    price = parse_price(item.price, price_category)
+                    price_str = f" - {price}€" if price else ""
                     lines.append(f"• {item.name}{price_str}")
 
         if not found_items:
@@ -476,6 +492,7 @@ class ActionFilterByPrice(Action):
     ) -> List[Dict[Text, Any]]:
         budget_slot = tracker.get_slot("budget")
         cached_menu_json = tracker.get_slot("cached_menu")
+        price_category = tracker.get_slot("price_category") or "student"
 
         # Convert budget to float
         budget = None
@@ -517,13 +534,13 @@ class ActionFilterByPrice(Action):
             return [SlotSet("budget", budget)]
 
         canteen_name = CANTEEN_NAMES.get(menu.canteen_id, menu.canteen_id)
-        lines = [f"**Items under €{budget:.2f} at {canteen_name}:**\n"]
+        lines = [f"**Items under €{budget:.2f} at {canteen_name} ({price_category} price):**\n"]
         found_items = False
 
         for category in menu.categories:
             affordable_items = []
             for item in category.items:
-                price = parse_student_price(item.price)
+                price = parse_price(item.price, price_category)
                 if price is not None and price <= budget:
                     affordable_items.append((item, price))
 
@@ -558,6 +575,7 @@ class ActionSuggestBudgetMeal(Action):
     ) -> List[Dict[Text, Any]]:
         budget_slot = tracker.get_slot("budget")
         cached_menu_json = tracker.get_slot("cached_menu")
+        price_category = tracker.get_slot("price_category") or "student"
 
         # Convert budget to float
         budget = None
@@ -604,14 +622,14 @@ class ActionSuggestBudgetMeal(Action):
         mains_with_price = []
         if mains_category:
             for item in mains_category.items:
-                price = parse_student_price(item.price)
+                price = parse_price(item.price, price_category)
                 if price is not None:
                     mains_with_price.append((item, price))
 
         sides_with_price = []
         if sides_category:
             for item in sides_category.items:
-                price = parse_student_price(item.price)
+                price = parse_price(item.price, price_category)
                 if price is not None:
                     sides_with_price.append((item, price))
 
@@ -660,7 +678,7 @@ class ActionSuggestBudgetMeal(Action):
             all_items = []
             for cat in menu.categories:
                 for item in cat.items:
-                    price = parse_student_price(item.price)
+                    price = parse_price(item.price, price_category)
                     if price is not None:
                         all_items.append((item, price, cat.name))
 
@@ -678,3 +696,35 @@ class ActionSuggestBudgetMeal(Action):
                 )
 
         return [SlotSet("budget", budget)]
+
+
+class ActionSetPriceCategory(Action):
+
+    def name(self) -> Text:
+        return "action_set_price_category"
+
+    def run(
+        self,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> List[Dict[Text, Any]]:
+        category = next(tracker.get_latest_entity_values("price_category"), None)
+
+        if not category:
+            message = tracker.latest_message.get("text", "").lower()
+            for key in PRICE_CATEGORY_INDEX:
+                if key in message:
+                    category = key
+                    break
+
+        if not category or category not in PRICE_CATEGORY_INDEX:
+            dispatcher.utter_message(
+                text="Please choose a price category: student, worker, or guest."
+            )
+            return []
+
+        dispatcher.utter_message(
+            text=f"Price category set to {category}. Prices will now show {category} rates."
+        )
+        return [SlotSet("price_category", category)]

@@ -13,6 +13,7 @@ intents:
   - inform_dietary_restriction
   - ask_affordable_menu
   - ask_budget_meal
+  - set_price_category
 
 entities:
   - canteen
@@ -20,6 +21,7 @@ entities:
   - category
   - dietary_restriction
   - budget
+  - price_category
 
 slots:
   canteen:
@@ -83,6 +85,14 @@ slots:
       - type: from_entity
         entity: budget
 
+  price_category:
+    type: text
+    initial_value: "student"
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: price_category
+
 responses:
   utter_greet:
     - text: |
@@ -134,6 +144,7 @@ actions:
   - action_filter_dietary
   - action_filter_by_price
   - action_suggest_budget_meal
+  - action_set_price_category
 
 session_config:
   session_expiration_time: 60

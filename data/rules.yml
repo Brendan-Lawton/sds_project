@@ -55,6 +55,11 @@ rules:
   - intent: ask_budget_meal
   - action: action_suggest_budget_meal
 
+- rule: Handle price category change
+  steps:
+  - intent: set_price_category
+  - action: action_set_price_category
+
 - rule: Handle fallback
   steps:
   - intent: nlu_fallback
