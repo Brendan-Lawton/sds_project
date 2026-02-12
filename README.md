@@ -14,13 +14,18 @@
     source .venv/bin/activate
     ```
 
-3. Install requirements
+3. Install `rasa` in the virtual environment
+    ```bash
+   pip install rasa
+    ```
+
+4. Install requirements
     ```bash
     pip install -r requirements.txt
     ```
 
-4. Add the `asr_server.py` file to the root folder.
-5. Add the `web/` folder to the root folder
+5. Add the `asr_server.py` file to the root folder.
+6. Add the `web/` folder to the root folder
 
 ## Running the Application
 Use the start script
