@@ -10,4 +10,5 @@ tar czf rasa.tar.gz --exclude='./*.tar.gz' \
 --exclude='/data/._rules.yml' \
 --exclude='/data/._stories.yml' \
 --exclude='pack.sh' \
---exclude='DOCUMENTATION.md' .
+--exclude='DOCUMENTATION.md' \
+--exclude='DOCUMENTATION.pdf' .
