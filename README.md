@@ -21,10 +21,6 @@
 
 4. Add the `asr_server.py` file to the root folder.
 5. Add the `web/` folder to the root folder
-6  Delete following files before you can retrain with `rasa train`
-    - data/._nlu.yml
-    - data/._rules.yml
-    - data/._stories.yml
 
 ## Running the Application
 Use the start script

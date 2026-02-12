@@ -16,12 +16,29 @@ from actions.services.menu_service import MenuService, MenuFetchError, MenuParse
 
 
 CANTEENS: Dict[str, str] = {
+    # Name-based
     "hardenbergstrasse": "1004",
     "hardenberg": "1004",
     "marchstrasse": "1010",
     "march": "1010",
     "vegan": "2456",
     "veggie": "2456",
+    # Index-based
+    "1": "1004",
+    "one": "1004",
+    "first": "1004",
+    "canteen 1": "1004",
+    "mensa 1": "1004",
+    "2": "1010",
+    "two": "1010",
+    "second": "1010",
+    "canteen 2": "1010",
+    "mensa 2": "1010",
+    "3": "2456",
+    "three": "2456",
+    "third": "2456",
+    "canteen 3": "2456",
+    "mensa 3": "2456",
 }
 
 CANTEEN_NAMES: Dict[str, str] = {
@@ -41,6 +58,67 @@ def resolve_canteen(canteen_input: Optional[str]) -> Optional[str]:
     if canteen_lower in CANTEEN_NAMES:
         return canteen_lower
     return None
+
+
+PRICE_CATEGORY_INDEX = {
+    "student": 0,
+    "worker": 1,
+    "guest": 2,
+}
+
+
+def parse_price(price_str: Optional[str], category: str = "student") -> Optional[float]:
+    """Extract price from price string like '€ 1,95/2,15/2,35' based on category.
+
+    The price string contains 3 values separated by '/':
+    index 0 = student, index 1 = worker, index 2 = guest.
+    """
+    if not price_str:
+        return None
+    try:
+        price_str = price_str.replace("€", "").strip()
+        parts = price_str.split("/")
+        idx = PRICE_CATEGORY_INDEX.get(category, 0)
+        if idx >= len(parts):
+            idx = 0
+        price_part = parts[idx].strip()
+        return float(price_part.replace(",", "."))
+    except (ValueError, IndexError):
+        return None
+
+
+# Dietary classification codes
+# Meat additives: 2 = Pork, 14 = Contains partially finely minced meat
+# Seafood allergens: 22 = Crustaceans, 24 = Fish, 34 = Mollusks
+MEAT_ADDITIVE_CODES = {"2", "14"}
+SEAFOOD_ALLERGEN_CODES = {"22", "24", "34"}
+EGG_ALLERGEN_CODE = "23"
+DAIRY_ALLERGEN_CODE = "30"
+NUT_ALLERGEN_CODES = {"25", "26", "26a", "26b", "26c", "26d", "26e", "26f", "26g", "26h"}
+
+
+def is_vegetarian(item) -> bool:
+    """Check if item is vegetarian (no meat/seafood)."""
+    all_codes = set(item.allergen_codes + item.additive_codes)
+    has_meat = bool(all_codes & MEAT_ADDITIVE_CODES)
+    has_seafood = bool(all_codes & SEAFOOD_ALLERGEN_CODES)
+    return not has_meat and not has_seafood
+
+
+def is_vegan(item) -> bool:
+    """Check if item is vegan (vegetarian + no eggs/dairy)."""
+    if not is_vegetarian(item):
+        return False
+    all_codes = set(item.allergen_codes + item.additive_codes)
+    has_eggs = EGG_ALLERGEN_CODE in all_codes
+    has_dairy = DAIRY_ALLERGEN_CODE in all_codes
+    return not has_eggs and not has_dairy
+
+
+def is_nut_free(item) -> bool:
+    """Check if item is nut-free (no peanuts or tree nuts)."""
+    all_codes = set(item.allergen_codes + item.additive_codes)
+    return not bool(all_codes & NUT_ALLERGEN_CODES)
 
 
 def format_category_items(category_name: str, menu: MenuDTO) -> str:
@@ -75,6 +153,8 @@ def serialize_menu(menu: MenuDTO) -> str:
                         "price": item.price,
                         "allergens": item.allergens,
                         "additives": item.additives,
+                        "allergen_codes": item.allergen_codes,
+                        "additive_codes": item.additive_codes,
                     }
                     for item in cat.items
                 ]
@@ -100,6 +180,8 @@ def deserialize_menu(menu_json: str) -> Optional[MenuDTO]:
                         price=item["price"],
                         allergens=item["allergens"],
                         additives=item["additives"],
+                        allergen_codes=item.get("allergen_codes", []),
+                        additive_codes=item.get("additive_codes", []),
                     )
                     for item in cat["items"]
                 ]
@@ -155,7 +237,8 @@ class ActionCheckMenu(Action):
             dispatcher.utter_message(
                 text=f"Menu for {canteen_name} on {menu_date} has the following categories:\n"
                 f"{categories_list}\n\n"
-                "Which category would you like to see?"
+                "Which category would you like to see?\n"
+                "Alternatively, you can say suggest a meal for a specific price (e.g., \"meal for 5 euros\") or ask for dietary options (e.g., \"vegan options\")."
             )
 
             return [
@@ -306,4 +389,342 @@ class ActionResetMenuSlots(Action):
             SlotSet("awaiting_category", False),
             SlotSet("available_categories", None),
             SlotSet("cached_menu", None),
+            SlotSet("dietary_restriction", None),
+            SlotSet("budget", None),
+            SlotSet("price_category", "student"),
         ]
+
+
+class ActionFilterDietary(Action):
+
+    def name(self) -> Text:
+        return "action_filter_dietary"
+
+    def run(
+        self,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> List[Dict[Text, Any]]:
+        dietary_restriction = tracker.get_slot("dietary_restriction")
+        cached_menu_json = tracker.get_slot("cached_menu")
+        price_category = tracker.get_slot("price_category") or "student"
+
+        if not dietary_restriction:
+            # Try to extract from message
+            message = tracker.latest_message.get("text", "").lower()
+            if "vegan" in message:
+                dietary_restriction = "vegan"
+            elif "vegetarian" in message:
+                dietary_restriction = "vegetarian"
+            elif "nut-free" in message or "nut free" in message or "no nuts" in message:
+                dietary_restriction = "nut-free"
+
+        if not dietary_restriction:
+            dispatcher.utter_message(
+                text="What dietary restriction would you like to filter by? "
+                "Options: vegan, vegetarian, or nut-free."
+            )
+            return []
+
+        if not cached_menu_json:
+            dispatcher.utter_message(
+                text="Please select a canteen first so I can filter the menu."
+            )
+            return [SlotSet("dietary_restriction", dietary_restriction)]
+
+        menu = deserialize_menu(cached_menu_json)
+        if not menu:
+            dispatcher.utter_message(
+                text="Sorry, I lost the menu data. Please ask for the menu again."
+            )
+            return [SlotSet("dietary_restriction", dietary_restriction)]
+
+        # Select filter function based on restriction
+        filter_funcs = {
+            "vegan": is_vegan,
+            "vegetarian": is_vegetarian,
+            "nut-free": is_nut_free,
+        }
+        filter_func = filter_funcs.get(dietary_restriction.lower())
+        if not filter_func:
+            dispatcher.utter_message(
+                text=f"I don't recognize '{dietary_restriction}'. "
+                "Please choose from: vegan, vegetarian, or nut-free."
+            )
+            return []
+
+        # Filter items across all categories
+        canteen_name = CANTEEN_NAMES.get(menu.canteen_id, menu.canteen_id)
+        lines = [f"**{dietary_restriction.capitalize()} options at {canteen_name}:**\n"]
+        found_items = False
+
+        for category in menu.categories:
+            matching_items = [item for item in category.items if filter_func(item)]
+            if matching_items:
+                found_items = True
+                lines.append(f"\n**{category.name}**")
+                for item in matching_items:
+                    price = parse_price(item.price, price_category)
+                    price_str = f" - {price}€" if price else ""
+                    lines.append(f"• {item.name}{price_str}")
+
+        if not found_items:
+            dispatcher.utter_message(
+                text=f"Sorry, I couldn't find any {dietary_restriction} options in the current menu."
+            )
+        else:
+            dispatcher.utter_message(text="\n".join(lines))
+
+        return [SlotSet("dietary_restriction", dietary_restriction)]
+
+
+class ActionFilterByPrice(Action):
+
+    def name(self) -> Text:
+        return "action_filter_by_price"
+
+    def run(
+        self,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> List[Dict[Text, Any]]:
+        budget_slot = tracker.get_slot("budget")
+        cached_menu_json = tracker.get_slot("cached_menu")
+        price_category = tracker.get_slot("price_category") or "student"
+
+        # Convert budget to float
+        budget = None
+        if budget_slot is not None:
+            try:
+                budget = float(str(budget_slot).replace(",", "."))
+            except ValueError:
+                pass
+
+        # Try to extract budget from message if not in slot
+        if budget is None:
+            message = tracker.latest_message.get("text", "")
+            import re
+            # Match patterns like "3 euros", "3.50", "3,50", "€3"
+            match = re.search(r'(\d+[.,]?\d*)\s*(?:euros?|€)?', message)
+            if match:
+                try:
+                    budget = float(match.group(1).replace(",", "."))
+                except ValueError:
+                    pass
+
+        if budget is None:
+            dispatcher.utter_message(
+                text="What's your budget? Please provide an amount in euros."
+            )
+            return []
+
+        if not cached_menu_json:
+            dispatcher.utter_message(
+                text="Please select a canteen first so I can filter by price."
+            )
+            return [SlotSet("budget", budget)]
+
+        menu = deserialize_menu(cached_menu_json)
+        if not menu:
+            dispatcher.utter_message(
+                text="Sorry, I lost the menu data. Please ask for the menu again."
+            )
+            return [SlotSet("budget", budget)]
+
+        canteen_name = CANTEEN_NAMES.get(menu.canteen_id, menu.canteen_id)
+        lines = [f"**Items under €{budget:.2f} at {canteen_name} ({price_category} price):**\n"]
+        found_items = False
+
+        for category in menu.categories:
+            affordable_items = []
+            for item in category.items:
+                price = parse_price(item.price, price_category)
+                if price is not None and price <= budget:
+                    affordable_items.append((item, price))
+
+            if affordable_items:
+                found_items = True
+                lines.append(f"\n**{category.name}**")
+                # Sort by price ascending
+                affordable_items.sort(key=lambda x: x[1])
+                for item, price in affordable_items:
+                    lines.append(f"• {item.name} - €{price:.2f}")
+
+        if not found_items:
+            dispatcher.utter_message(
+                text=f"Sorry, I couldn't find any items under €{budget:.2f}."
+            )
+        else:
+            dispatcher.utter_message(text="\n".join(lines))
+
+        return [SlotSet("budget", budget)]
+
+
+class ActionSuggestBudgetMeal(Action):
+
+    def name(self) -> Text:
+        return "action_suggest_budget_meal"
+
+    def run(
+        self,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> List[Dict[Text, Any]]:
+        budget_slot = tracker.get_slot("budget")
+        cached_menu_json = tracker.get_slot("cached_menu")
+        price_category = tracker.get_slot("price_category") or "student"
+
+        # Convert budget to float
+        budget = None
+        if budget_slot is not None:
+            try:
+                budget = float(str(budget_slot).replace(",", "."))
+            except ValueError:
+                pass
+
+        # Try to extract budget from message if not in slot
+        if budget is None:
+            message = tracker.latest_message.get("text", "")
+            import re
+            match = re.search(r'(\d+[.,]?\d*)\s*(?:euros?|€)?', message)
+            if match:
+                try:
+                    budget = float(match.group(1).replace(",", "."))
+                except ValueError:
+                    pass
+
+        if budget is None:
+            dispatcher.utter_message(
+                text="What's your budget for a meal? Please provide an amount in euros."
+            )
+            return []
+
+        if not cached_menu_json:
+            dispatcher.utter_message(
+                text="Please select a canteen first so I can suggest a meal."
+            )
+            return [SlotSet("budget", budget)]
+
+        menu = deserialize_menu(cached_menu_json)
+        if not menu:
+            dispatcher.utter_message(
+                text="Sorry, I lost the menu data. Please ask for the menu again."
+            )
+            return [SlotSet("budget", budget)]
+
+        # Get main dishes and sides
+        mains_category = next((c for c in menu.categories if c.name.lower() == "main dishes"), None)
+        sides_category = next((c for c in menu.categories if c.name.lower() == "desserts"), None)
+
+        mains_with_price = []
+        if mains_category:
+            for item in mains_category.items:
+                price = parse_price(item.price, price_category)
+                if price is not None:
+                    mains_with_price.append((item, price))
+
+        sides_with_price = []
+        if sides_category:
+            for item in sides_category.items:
+                price = parse_price(item.price, price_category)
+                if price is not None:
+                    sides_with_price.append((item, price))
+
+        # Sort mains by price descending (maximize value)
+        mains_with_price.sort(key=lambda x: x[1], reverse=True)
+        # Sort sides by price ascending (cheapest first)
+        sides_with_price.sort(key=lambda x: x[1])
+
+        canteen_name = CANTEEN_NAMES.get(menu.canteen_id, menu.canteen_id)
+        best_combo = None
+        best_main_only = None
+
+        # Find best main + side combo within budget
+        for main, main_price in mains_with_price:
+            if main_price <= budget:
+                remaining = budget - main_price
+                # Find cheapest side that fits
+                for side, side_price in sides_with_price:
+                    if side_price <= remaining:
+                        best_combo = (main, main_price, side, side_price)
+                        break
+                if best_combo:
+                    break
+                # Track best main-only option
+                if best_main_only is None:
+                    best_main_only = (main, main_price)
+
+        if best_combo:
+            main, main_price, side, side_price = best_combo
+            total = main_price + side_price
+            dispatcher.utter_message(
+                text=f"**Best meal combo for €{budget:.2f} at {canteen_name}:**\n\n"
+                f"🍽️ Main: {main.name} - €{main_price:.2f}\n"
+                f"🥗 Side: {side.name} - €{side_price:.2f}\n"
+                f"💰 Total: €{total:.2f}"
+            )
+        elif best_main_only:
+            main, main_price = best_main_only
+            dispatcher.utter_message(
+                text=f"**Best option for €{budget:.2f} at {canteen_name}:**\n\n"
+                f"🍽️ {main.name} - €{main_price:.2f}\n\n"
+                f"(No sides fit within the remaining budget)"
+            )
+        else:
+            # Suggest cheapest option
+            all_items = []
+            for cat in menu.categories:
+                for item in cat.items:
+                    price = parse_price(item.price, price_category)
+                    if price is not None:
+                        all_items.append((item, price, cat.name))
+
+            if all_items:
+                all_items.sort(key=lambda x: x[1])
+                cheapest, cheapest_price, cat_name = all_items[0]
+                dispatcher.utter_message(
+                    text=f"Sorry, nothing fits your €{budget:.2f} budget.\n\n"
+                    f"The cheapest option is:\n"
+                    f"• {cheapest.name} ({cat_name}) - €{cheapest_price:.2f}"
+                )
+            else:
+                dispatcher.utter_message(
+                    text=f"Sorry, I couldn't find any priced items in the menu."
+                )
+
+        return [SlotSet("budget", budget)]
+
+
+class ActionSetPriceCategory(Action):
+
+    def name(self) -> Text:
+        return "action_set_price_category"
+
+    def run(
+        self,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> List[Dict[Text, Any]]:
+        category = next(tracker.get_latest_entity_values("price_category"), None)
+
+        if not category:
+            message = tracker.latest_message.get("text", "").lower()
+            for key in PRICE_CATEGORY_INDEX:
+                if key in message:
+                    category = key
+                    break
+
+        if not category or category not in PRICE_CATEGORY_INDEX:
+            dispatcher.utter_message(
+                text="Please choose a price category: student, worker, or guest."
+            )
+            return []
+
+        dispatcher.utter_message(
+            text=f"Price category set to {category}. Prices will now show {category} rates."
+        )
+        return [SlotSet("price_category", category)]

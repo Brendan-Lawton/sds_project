@@ -106,6 +106,21 @@ nlu:
     - [Hardenbergstrasse](canteen) please
     - [Marchstrasse](canteen) please
     - [vegan](canteen) please
+    - [canteen 1](canteen)
+    - [canteen 2](canteen)
+    - [canteen 3](canteen)
+    - [mensa 1](canteen)
+    - [mensa 2](canteen)
+    - [mensa 3](canteen)
+    - [1](canteen)
+    - [2](canteen)
+    - [3](canteen)
+    - the [first](canteen) one
+    - the [second](canteen) one
+    - the [third](canteen) one
+    - [one](canteen)
+    - [two](canteen)
+    - [three](canteen)
 
 - intent: inform_date
   examples: |
@@ -164,12 +179,139 @@ nlu:
     - desserts
     - appetizers
 
+- intent: ask_dietary_menu
+  examples: |
+    - show me vegan options
+    - what vegan food is available?
+    - vegan dishes please
+    - show vegetarian options
+    - what vegetarian meals are there?
+    - vegetarian food please
+    - nut-free options
+    - show me nut-free food
+    - what can I eat that's nut free?
+    - I need vegan food
+    - are there any vegan options?
+    - do you have vegetarian dishes?
+    - is there anything nut-free?
+    - I'm vegan, what can I eat?
+    - I'm vegetarian
+    - I have a nut allergy
+    - show [vegan](dietary_restriction) options
+    - [vegetarian](dietary_restriction) dishes
+    - [nut-free](dietary_restriction) food
+    - filter by [vegan](dietary_restriction)
+    - only show [vegetarian](dietary_restriction)
+    - I want [vegan](dietary_restriction) meals
+
+- intent: inform_dietary_restriction
+  examples: |
+    - [vegan](dietary_restriction)
+    - [vegetarian](dietary_restriction)
+    - [nut-free](dietary_restriction)
+    - I'm [vegan](dietary_restriction)
+    - I'm [vegetarian](dietary_restriction)
+    - I need [nut-free](dietary_restriction)
+    - [vegan](dietary_restriction) please
+    - [vegetarian](dietary_restriction) please
+
+- intent: ask_affordable_menu
+  examples: |
+    - what can I get for 3 euros?
+    - what's under 5 euros?
+    - items under 4 euros
+    - show me food for less than 3 euros
+    - what can I afford for [3](budget) euros?
+    - what's available for under [5](budget) euros?
+    - meals under [4](budget) euros
+    - food for [2.50](budget) euros or less
+    - anything under [3.50](budget)?
+    - cheap options under [4](budget) euros
+    - what costs less than [5](budget) euros?
+    - show items below [3](budget) euros
+    - I have [4](budget) euros, what can I eat?
+    - what fits in a [5](budget) euro budget?
+
+- intent: ask_budget_meal
+  examples: |
+    - suggest a meal for 5 euros
+    - main and side for 4 euros
+    - what meal can I get for [5](budget) euros?
+    - suggest a combo for [4](budget) euros
+    - main dish and side for [6](budget) euros
+    - recommend a meal within [5](budget) euros
+    - best meal for [4.50](budget) euros
+    - what's a good combo for [5](budget) euros?
+    - I want a full meal for [6](budget) euros
+    - main plus side within [5](budget) euros
+    - meal suggestion for [4](budget) euros
+    - budget meal for [5](budget) euros
+    - suggest something for [3.50](budget) euros
+
+- intent: set_price_category
+  examples: |
+    - I'm a [student](price_category)
+    - I am a [student](price_category)
+    - show [student](price_category) prices
+    - [student](price_category) pricing
+    - [student](price_category) price please
+    - switch to [student](price_category) prices
+    - I'm a [worker](price_category)
+    - I am a [worker](price_category)
+    - show [worker](price_category) prices
+    - [worker](price_category) pricing
+    - [worker](price_category) price please
+    - switch to [worker](price_category) prices
+    - I'm a [guest](price_category)
+    - I am a [guest](price_category)
+    - show [guest](price_category) prices
+    - [guest](price_category) pricing
+    - [guest](price_category) price please
+    - switch to [guest](price_category) prices
+    - change price category to [student](price_category)
+    - change price category to [worker](price_category)
+    - change price category to [guest](price_category)
+    - set price to [student](price_category)
+    - set price to [worker](price_category)
+    - set price to [guest](price_category)
+    - use [student](price_category) prices
+    - use [worker](price_category) prices
+    - use [guest](price_category) prices
+
+- synonym: student
+  examples: |
+    - Student
+    - students
+
+- synonym: worker
+  examples: |
+    - Worker
+    - workers
+    - employee
+    - Employee
+    - employees
+    - staff
+    - Staff
+
+- synonym: guest
+  examples: |
+    - Guest
+    - guests
+    - visitor
+    - Visitor
+    - visitors
+
 - synonym: hardenbergstrasse
   examples: |
     - hardenberg
     - Hardenberg
     - Hardenbergstrasse
     - hardenbergstraße
+    - canteen 1
+    - mensa 1
+    - first
+    - 1
+    - one
 
 - synonym: marchstrasse
   examples: |
@@ -177,6 +319,11 @@ nlu:
     - March
     - Marchstrasse
     - marchstraße
+    - canteen 2
+    - mensa 2
+    - second
+    - 2
+    - two
 
 - synonym: vegan
   examples: |
@@ -184,3 +331,8 @@ nlu:
     - Veggie
     - Vegan
     - vegan mensa
+    - canteen 3
+    - mensa 3
+    - third
+    - 3
+    - three

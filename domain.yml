@@ -9,11 +9,19 @@ intents:
   - inform_canteen
   - inform_date
   - inform_category
+  - ask_dietary_menu
+  - inform_dietary_restriction
+  - ask_affordable_menu
+  - ask_budget_meal
+  - set_price_category
 
 entities:
   - canteen
   - date
   - category
+  - dietary_restriction
+  - budget
+  - price_category
 
 slots:
   canteen:
@@ -63,9 +71,39 @@ slots:
     mappings:
       - type: custom
 
+  dietary_restriction:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: dietary_restriction
+
+  budget:
+    type: float
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: budget
+
+  price_category:
+    type: text
+    initial_value: "student"
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: price_category
+
 responses:
   utter_greet:
-    - text: "Hey! How can I help you today?"
+    - text: |
+        Hello! I'm your TU Berlin canteen assistant. I can help you with:
+
+        - Show menus for Hardenbergstrasse, Marchstrasse, or Vegan Mensa
+        - Filter by dietary needs (vegan, vegetarian, nut-free)
+        - Find meals within your budget
+        - Suggest main dish + side combinations
+
+        Which canteen would you like to check? (You can also say "canteen 1", "canteen 2", or "canteen 3")
 
   utter_goodbye:
     - text: "Bye! Have a nice meal!"
@@ -74,10 +112,28 @@ responses:
     - text: "Did that help you?"
 
   utter_ask_canteen:
-    - text: "Which canteen would you like to check? Available options: Hardenbergstrasse, Marchstrasse, or Vegan."
+    - text: |
+        Which canteen would you like to check?
+        1. Hardenbergstrasse
+        2. Marchstrasse
+        3. Vegan Mensa
+
+        You can say the name or just the number.
 
   utter_ask_category:
-    - text: "Which category would you like to see?"
+    - text: |
+        Which category would you like to see?
+        Alternatively, you can say suggest a meal for a specific price (e.g., "meal for 5 euros") or ask for dietary options (e.g., "vegan options").
+
+  utter_help:
+    - text: |
+        I'm not sure I understood. Here's what I can do:
+        - Show canteen menus (e.g., "menu for Hardenbergstrasse")
+        - Filter by diet (e.g., "vegan options")
+        - Check prices (e.g., "what's under 3 euros?")
+        - Suggest meals (e.g., "meal for 5 euros")
+
+        What would you like?
 
 actions:
   - action_check_menu
@@ -85,6 +141,10 @@ actions:
   - action_set_canteen
   - action_set_menu_date
   - action_reset_menu_slots
+  - action_filter_dietary
+  - action_filter_by_price
+  - action_suggest_budget_meal
+  - action_set_price_category
 
 session_config:
   session_expiration_time: 60

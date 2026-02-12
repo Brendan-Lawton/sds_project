@@ -2,9 +2,10 @@ version: "3.1"
 
 rules:
 
-- rule: Say goodbye anytime the user says goodbye
+- rule: Say goodbye and reset
   steps:
   - intent: goodbye
+  - action: action_reset_menu_slots
   - action: utter_goodbye
 
 - rule: Respond to menu request
@@ -33,3 +34,33 @@ rules:
   steps:
   - intent: inform_date
   - action: action_set_menu_date
+
+- rule: Handle dietary menu request
+  steps:
+  - intent: ask_dietary_menu
+  - action: action_filter_dietary
+
+- rule: Handle dietary restriction info
+  steps:
+  - intent: inform_dietary_restriction
+  - action: action_filter_dietary
+
+- rule: Handle affordable menu request
+  steps:
+  - intent: ask_affordable_menu
+  - action: action_filter_by_price
+
+- rule: Handle budget meal request
+  steps:
+  - intent: ask_budget_meal
+  - action: action_suggest_budget_meal
+
+- rule: Handle price category change
+  steps:
+  - intent: set_price_category
+  - action: action_set_price_category
+
+- rule: Handle fallback
+  steps:
+  - intent: nlu_fallback
+  - action: utter_help

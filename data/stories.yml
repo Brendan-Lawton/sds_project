@@ -80,4 +80,5 @@ stories:
   - intent: greet
   - action: utter_greet
   - intent: goodbye
+  - action: action_reset_menu_slots
   - action: utter_goodbye
