@@ -124,6 +124,7 @@ responses:
     - text: |
         Which category would you like to see?
         Alternatively, you can say suggest a meal for a specific price (e.g., "meal for 5 euros") or ask for dietary options (e.g., "vegan options").
+        You can also change the price category (e.g., "set price category to employee").
 
   utter_help:
     - text: |

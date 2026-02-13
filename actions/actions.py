@@ -239,6 +239,7 @@ class ActionCheckMenu(Action):
                 f"{categories_list}\n\n"
                 "Which category would you like to see?\n"
                 "Alternatively, you can say suggest a meal for a specific price (e.g., \"meal for 5 euros\") or ask for dietary options (e.g., \"vegan options\")."
+                "You can also change the price category (e.g., \"set price category to employee\")."
             )
 
             return [
@@ -285,6 +286,7 @@ class ActionShowCategory(Action):
                 text=f"I didn't recognize that category. "
                 f"Available categories are: {categories_list}"
                 f"Alternatively, you can say suggest a meal for a specific price (e.g., \"meal for 5 euros\") or ask for dietary options (e.g., \"vegan options\")."
+                f"You can also change the price category (e.g., \"set price category to employee\")."
             )
             return []
 
@@ -477,6 +479,7 @@ class ActionFilterDietary(Action):
             text="Would you like to see another category? "
             f"Available: {', '.join(available_categories)}"
             f"Alternatively, you can say suggest a meal for a specific price (e.g., \"meal for 5 euros\") or ask for dietary options (e.g., \"vegan options\")."
+            f"You can also change the price category (e.g., \"set price category to employee\")."
         )
 
         return [SlotSet("dietary_restriction", dietary_restriction)]
@@ -567,6 +570,7 @@ class ActionFilterByPrice(Action):
             text="Would you like to see another category? "
             f"Available: {', '.join(available_categories)}"
             f"Alternatively, you can say suggest a meal for a specific price (e.g., \"meal for 5 euros\") or ask for dietary options (e.g., \"vegan options\")."
+            f"You can also change the price category (e.g., \"set price category to employee\")."
         )
 
         return [SlotSet("budget", budget)]
@@ -710,6 +714,7 @@ class ActionSuggestBudgetMeal(Action):
             text="Would you like to see another category? "
             f"Available: {', '.join(available_categories)}"
             f"Alternatively, you can say suggest a meal for a specific price (e.g., \"meal for 5 euros\") or ask for dietary options (e.g., \"vegan options\")."
+            f"You can also change the price category (e.g., \"set price category to employee\")."
         )
 
         return [SlotSet("budget", budget)]
