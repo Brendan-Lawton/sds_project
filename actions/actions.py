@@ -284,6 +284,7 @@ class ActionShowCategory(Action):
             dispatcher.utter_message(
                 text=f"I didn't recognize that category. "
                 f"Available categories are: {categories_list}"
+                f"Alternatively, you can say suggest a meal for a specific price (e.g., \"meal for 5 euros\") or ask for dietary options (e.g., \"vegan options\")."
             )
             return []
 
@@ -300,11 +301,6 @@ class ActionShowCategory(Action):
 
         formatted = format_category_items(selected_category, menu)
         dispatcher.utter_message(text=formatted)
-
-        dispatcher.utter_message(
-            text="Would you like to see another category? "
-            f"Available: {', '.join(available_categories)}"
-        )
 
         return [SlotSet("menu_category", selected_category)]
 
@@ -408,6 +404,7 @@ class ActionFilterDietary(Action):
     ) -> List[Dict[Text, Any]]:
         dietary_restriction = tracker.get_slot("dietary_restriction")
         cached_menu_json = tracker.get_slot("cached_menu")
+        available_categories = tracker.get_slot("available_categories") or []
         price_category = tracker.get_slot("price_category") or "student"
 
         if not dietary_restriction:
@@ -476,6 +473,12 @@ class ActionFilterDietary(Action):
         else:
             dispatcher.utter_message(text="\n".join(lines))
 
+        dispatcher.utter_message(
+            text="Would you like to see another category? "
+            f"Available: {', '.join(available_categories)}"
+            f"Alternatively, you can say suggest a meal for a specific price (e.g., \"meal for 5 euros\") or ask for dietary options (e.g., \"vegan options\")."
+        )
+
         return [SlotSet("dietary_restriction", dietary_restriction)]
 
 
@@ -492,6 +495,7 @@ class ActionFilterByPrice(Action):
     ) -> List[Dict[Text, Any]]:
         budget_slot = tracker.get_slot("budget")
         cached_menu_json = tracker.get_slot("cached_menu")
+        available_categories = tracker.get_slot("available_categories") or []
         price_category = tracker.get_slot("price_category") or "student"
 
         # Convert budget to float
@@ -559,6 +563,12 @@ class ActionFilterByPrice(Action):
         else:
             dispatcher.utter_message(text="\n".join(lines))
 
+        dispatcher.utter_message(
+            text="Would you like to see another category? "
+            f"Available: {', '.join(available_categories)}"
+            f"Alternatively, you can say suggest a meal for a specific price (e.g., \"meal for 5 euros\") or ask for dietary options (e.g., \"vegan options\")."
+        )
+
         return [SlotSet("budget", budget)]
 
 
@@ -575,6 +585,7 @@ class ActionSuggestBudgetMeal(Action):
     ) -> List[Dict[Text, Any]]:
         budget_slot = tracker.get_slot("budget")
         cached_menu_json = tracker.get_slot("cached_menu")
+        available_categories = tracker.get_slot("available_categories") or []
         price_category = tracker.get_slot("price_category") or "student"
 
         # Convert budget to float
@@ -694,6 +705,12 @@ class ActionSuggestBudgetMeal(Action):
                 dispatcher.utter_message(
                     text=f"Sorry, I couldn't find any priced items in the menu."
                 )
+
+        dispatcher.utter_message(
+            text="Would you like to see another category? "
+            f"Available: {', '.join(available_categories)}"
+            f"Alternatively, you can say suggest a meal for a specific price (e.g., \"meal for 5 euros\") or ask for dietary options (e.g., \"vegan options\")."
+        )
 
         return [SlotSet("budget", budget)]
 
