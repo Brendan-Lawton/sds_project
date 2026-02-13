@@ -18,14 +18,19 @@
     ```bash
    pip install rasa
     ```
+4. If you notice that
+```bash
+rasa run actions
+```
+is requiring extra install like pytest or bsa, then uninstall rasa and reinstall an earlier version (pip install rasa==3.6.21)
 
-4. Install requirements
+5. Install requirements
     ```bash
     pip install -r requirements.txt
     ```
 
-5. Add the `asr_server.py` file to the root folder.
-6. Add the `web/` folder to the root folder
+6. Add the `asr_server.py` file to the root folder.
+7. Add the `web/` folder to the root folder
 
 ## Running the Application
 Use the start script
